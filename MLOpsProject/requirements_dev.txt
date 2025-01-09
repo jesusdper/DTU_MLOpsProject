@@ -1,0 +1,6 @@
+pytest==6.2.5
+flake8==4.0.1
+black==21.12b0
+pre-commit==2.19.0
+hydra-core==1.2.0
+wandb==0.12.0
