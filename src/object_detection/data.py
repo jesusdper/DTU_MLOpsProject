@@ -5,6 +5,8 @@ import requests
 import shutil
 import torch
 import typer
+from PIL import Image
+import xml.etree.ElementTree as ET
 
 
 def download_dataset(url: str, output_dir: Path) -> None:
@@ -41,12 +43,34 @@ def download_dataset(url: str, output_dir: Path) -> None:
         typer.echo(f"Moved extracted data to {final_dest}")
 
 
-def normalize(images: torch.Tensor) -> torch.Tensor:
+def parse_annotation(annotation_path: Path, image_width: int, image_height: int):
     """
-    Normalize images by subtracting mean and dividing by standard deviation.
-    """
-    return (images - images.mean()) / images.std()
+    Parse a VOC XML annotation file to extract bounding boxes and class labels.
+    Args:
+        annotation_path (Path): Path to the annotation file.
+        image_width (int): Width of the corresponding image.
+        image_height (int): Height of the corresponding image.
 
+    Returns:
+        list: A list of dictionaries with 'bbox' and 'label' keys.
+    """
+    tree = ET.parse(annotation_path)
+    root = tree.getroot()
+    objects = []
+    for obj in root.findall("object"):
+        label = obj.find("name").text
+        bbox = obj.find("bndbox")
+        xmin = int(bbox.find("xmin").text) / image_width
+        ymin = int(bbox.find("ymin").text) / image_height
+        xmax = int(bbox.find("xmax").text) / image_width
+        ymax = int(bbox.find("ymax").text) / image_height
+        objects.append({"bbox": [xmin, ymin, xmax, ymax], "label": label})
+    return objects
+
+
+from PIL import Image
+import numpy as np
+import torch
 
 def preprocess_data(
     raw_dir: Path,
@@ -71,12 +95,35 @@ def preprocess_data(
     typer.echo(f"Images directory: {images_dir}")
     typer.echo(f"Annotations directory: {annotations_dir}")
 
-    # Simulate processing (adjust this based on your actual preprocessing)
-    typer.echo(f"Processing {max_samples} samples...")
-    # Placeholder logic for now
-    torch.save([], processed_dir / "train_images.pt")
-    torch.save([], processed_dir / "train_target.pt")
+    images = []
+    targets = []
+
+    typer.echo(f"Processing up to {max_samples} samples...")
+
+    for i, image_file in enumerate(images_dir.iterdir()):
+        if i >= max_samples:
+            break
+
+        annotation_file = annotations_dir / f"{image_file.stem}.xml"
+
+        if not annotation_file.exists():
+            continue
+
+        # Load and process the image
+        with Image.open(image_file) as img:
+            img = img.convert("RGB")  # Ensure RGB format
+            img_array = np.array(img, dtype=np.float32) / 255.0  # Normalize to [0, 1]
+            image_tensor = torch.from_numpy(img_array).permute(2, 0, 1)  # HWC -> CHW
+            images.append(image_tensor)
+
+        # Placeholder for processing targets (to be replaced with actual annotation parsing)
+        targets.append(torch.tensor([]))  # Replace with actual parsing logic
+
+    # Save processed data
+    torch.save(images, processed_dir / "train_images.pt")
+    torch.save(targets, processed_dir / "train_target.pt")
     typer.echo(f"Processed training data saved to {processed_dir}")
+
 
 
 def load_data() -> None:
