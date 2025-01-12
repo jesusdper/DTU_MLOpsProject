@@ -1,0 +1,34 @@
+data:
+  processed_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed"
+  num_classes: 20
+  class_names:
+    - aeroplane
+    - bicycle
+    - bird
+    - boat
+    - bottle
+    - bus
+    - car
+    - cat
+    - chair
+    - cow
+    - dog
+    - horse
+    - motorbike
+    - person
+    - pottedplant
+    - sheep
+    - sofa
+    - train
+    - tvmonitor
+    - diningtable
+
+model:
+  pretrained_weights: "yolov8n.pt"  # YOLOv8 nano model
+
+training:
+  epochs: 100
+  img_size: 640
+  batch_size: 16
+  experiment_name: "yolov8_voc"
+  output_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models"

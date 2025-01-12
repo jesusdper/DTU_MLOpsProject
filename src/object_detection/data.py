@@ -1,146 +1,92 @@
-import os
+import torch
+from torch.utils.data import DataLoader, Dataset
 from pathlib import Path
-import tarfile
-import requests
-import shutil
-import torch
+import torch.optim as optim
+import torch.nn as nn
 import typer
-from PIL import Image
-import xml.etree.ElementTree as ET
+import hydra
+from omegaconf import DictConfig
+from model import YOLOv5  # Replace with your model import
+from torchvision import transforms
+from utils import collate_fn  # For handling batch formation in DataLoader
 
+# Custom Dataset class for loading VOC2012 data
+class VOC2012Dataset(Dataset):
+    def __init__(self, images_dir: Path, targets_dir: Path, transform=None):
+        self.images = torch.load(images_dir)  # Loaded image tensors
+        self.targets = torch.load(targets_dir)  # Loaded target tensors (bboxes + class_ids)
+        self.transform = transform
 
-def download_dataset(url: str, output_dir: Path) -> None:
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        target = self.targets[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        return image, target
+
+@hydra.main(config_path="configs", config_name="config.yaml")
+def train_model(config: DictConfig) -> None:
     """
-    Download and extract the dataset.
+    Train the object detection model with the preprocessed VOC2012 data.
     Args:
-        url (str): URL of the dataset tar file.
-        output_dir (Path): Directory where raw data will be saved.
+        config: Configurations, including hyperparameters, model architecture, etc.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    tar_path = output_dir / "VOC2012.tar"
-    extracted_dir = output_dir / "VOCdevkit"
+    # Set up directories
+    processed_dir = Path(config.data.processed_dir)
+    output_dir = Path(config.output_dir)
+    images_dir = processed_dir / "train_images.pt"
+    targets_dir = processed_dir / "train_target.pt"
 
-    if not tar_path.exists():
-        typer.echo(f"Downloading dataset from {url}...")
-        response = requests.get(url, stream=True)
-        with open(tar_path, "wb") as f:
-            for chunk in response.iter_content(chunk_size=1024):
-                if chunk:
-                    f.write(chunk)
-        typer.echo(f"Downloaded dataset to {tar_path}")
-    else:
-        typer.echo(f"Dataset already exists at {tar_path}")
+    # Data transformations
+    transform = transforms.Compose([
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.ToTensor(),
+    ])
 
-    # Extract the tar file
-    with tarfile.open(tar_path) as tar:
-        tar.extractall(path=output_dir)
-    typer.echo(f"Extracted dataset to {output_dir}")
+    # Create dataset and dataloaders
+    dataset = VOC2012Dataset(images_dir, targets_dir, transform=transform)
+    dataloader = DataLoader(dataset, batch_size=config.batch_size, collate_fn=collate_fn, shuffle=True)
 
-    # Move VOCdevkit to raw data directory if needed
-    if extracted_dir.exists() and extracted_dir.parent != output_dir:
-        final_dest = output_dir / "VOCdevkit"
-        shutil.move(str(extracted_dir), str(final_dest))
-        typer.echo(f"Moved extracted data to {final_dest}")
+    # Initialize the model
+    model = YOLOv5()  # Replace with your actual model class
+    model.train()
 
+    # Loss function and optimizer
+    criterion = nn.CrossEntropyLoss()  # This depends on your model's requirements
+    optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
 
-def parse_annotation(annotation_path: Path, image_width: int, image_height: int):
-    """
-    Parse a VOC XML annotation file to extract bounding boxes and class labels.
-    Args:
-        annotation_path (Path): Path to the annotation file.
-        image_width (int): Width of the corresponding image.
-        image_height (int): Height of the corresponding image.
+    # Training loop
+    for epoch in range(config.num_epochs):
+        for batch_idx, (images, targets) in enumerate(dataloader):
+            # Move data to GPU if available
+            images = images.cuda()  # Assuming you have GPU
+            targets = [target.cuda() for target in targets]  # Assuming you want to move target to GPU as well
 
-    Returns:
-        list: A list of dictionaries with 'bbox' and 'label' keys.
-    """
-    tree = ET.parse(annotation_path)
-    root = tree.getroot()
-    objects = []
-    for obj in root.findall("object"):
-        label = obj.find("name").text
-        bbox = obj.find("bndbox")
-        xmin = int(bbox.find("xmin").text) / image_width
-        ymin = int(bbox.find("ymin").text) / image_height
-        xmax = int(bbox.find("xmax").text) / image_width
-        ymax = int(bbox.find("ymax").text) / image_height
-        objects.append({"bbox": [xmin, ymin, xmax, ymax], "label": label})
-    return objects
+            # Forward pass
+            optimizer.zero_grad()
+            outputs = model(images)
 
+            # Calculate loss
+            loss = criterion(outputs, targets)  # Modify as per your model's output format and loss function
 
-from PIL import Image
-import numpy as np
-import torch
+            # Backward pass and optimization
+            loss.backward()
+            optimizer.step()
 
-def preprocess_data(
-    raw_dir: Path,
-    processed_dir: Path,
-    max_samples: int = 100,
-) -> None:
-    """
-    Preprocess raw data and save it to the processed directory.
-    Args:
-        raw_dir (Path): Directory containing raw data.
-        processed_dir (Path): Directory where processed data will be saved.
-        max_samples (int): Maximum number of samples to process.
-    """
-    raw_dir = raw_dir.resolve()
-    processed_dir = processed_dir.resolve()
-    os.makedirs(processed_dir, exist_ok=True)
+            if batch_idx % 10 == 0:
+                typer.echo(f"Epoch [{epoch}/{config.num_epochs}], Batch [{batch_idx}/{len(dataloader)}], Loss: {loss.item()}")
 
-    # Define paths for images and annotations
-    images_dir = raw_dir / "VOCdevkit/VOC2012/JPEGImages"
-    annotations_dir = raw_dir / "VOCdevkit/VOC2012/Annotations"
+        # Save model checkpoints
+        torch.save(model.state_dict(), output_dir / f"model_epoch_{epoch}.pth")
 
-    typer.echo(f"Images directory: {images_dir}")
-    typer.echo(f"Annotations directory: {annotations_dir}")
-
-    images = []
-    targets = []
-
-    typer.echo(f"Processing up to {max_samples} samples...")
-
-    for i, image_file in enumerate(images_dir.iterdir()):
-        if i >= max_samples:
-            break
-
-        annotation_file = annotations_dir / f"{image_file.stem}.xml"
-
-        if not annotation_file.exists():
-            continue
-
-        # Load and process the image
-        with Image.open(image_file) as img:
-            img = img.convert("RGB")  # Ensure RGB format
-            img_array = np.array(img, dtype=np.float32) / 255.0  # Normalize to [0, 1]
-            image_tensor = torch.from_numpy(img_array).permute(2, 0, 1)  # HWC -> CHW
-            images.append(image_tensor)
-
-        # Placeholder for processing targets (to be replaced with actual annotation parsing)
-        targets.append(torch.tensor([]))  # Replace with actual parsing logic
-
-    # Save processed data
-    torch.save(images, processed_dir / "train_images.pt")
-    torch.save(targets, processed_dir / "train_target.pt")
-    typer.echo(f"Processed training data saved to {processed_dir}")
-
-
-
-def load_data() -> None:
-    """
-    Download, preprocess, and save data.
-    """
-    # Dataset download URL (example for VOC 2012)
-    dataset_url = "http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar"
-    raw_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\raw")
-    processed_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed")
-
-    # Download dataset
-    download_dataset(dataset_url, raw_dir)
-
-    # Preprocess data
-    preprocess_data(raw_dir, processed_dir, max_samples=100)
-
+    # Save the final model
+    torch.save(model.state_dict(), output_dir / "final_model.pth")
+    typer.echo(f"Training complete. Final model saved to {output_dir}")
 
 if __name__ == "__main__":
-    typer.run(load_data)
+    typer.run(train_model)

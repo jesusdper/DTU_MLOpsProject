@@ -1,25 +1,43 @@
-# model.py
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+from ultralytics import YOLO  # Import YOLOv8
 
-class YOLOv5(nn.Module):
-    def __init__(self, num_classes: int, img_size: int = 256):
-        super(YOLOv5, self).__init__()
-        self.num_classes = num_classes
-        self.img_size = img_size
 
-        # Define the layers here (This is a simplified version)
-        self.conv1 = nn.Conv2d(3, 32, 3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, 3, stride=2, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, 3, stride=2, padding=1)
+class CustomPTDataset(Dataset):
+    def __init__(self, images_path, targets_path, transform=None):
+        self.images = torch.load(images_path)  # Load images as tensors
+        self.targets = torch.load(targets_path)  # Load targets as tensors
+        self.transform = transform
 
-        # YOLO detection head (for simplicity, let's assume 3 anchors)
-        self.detect = nn.Conv2d(128, num_classes + 5, 1)  # 5 for box info (x, y, w, h, confidence)
+    def __len__(self):
+        return len(self.images)
 
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
-        x = self.detect(x)
-        return x
+    def __getitem__(self, idx):
+        img = self.images[idx]
+        target = self.targets[idx]
+        if self.transform:
+            img = self.transform(img)
+        return img, target
+
+
+def create_yolo_model(model_path=None, num_classes=80):
+    """
+    Initializes the YOLO model.
+
+    Args:
+        model_path (str): Path to a pre-trained YOLO model. If None, it will load the default model.
+        num_classes (int): Number of classes in your dataset.
+
+    Returns:
+        model: YOLO model instance.
+    """
+    # Load YOLOv8 model
+    model = YOLO(model_path or "yolov8n.pt")  # Load YOLO Nano model by default
+
+    # Print the model architecture to help identify the correct way to access the final layer
+    #print(model)
+
+    # Update the number of classes in the final detection layer (the last layer)
+    #model.model[-1].nc = num_classes  # Correct access to final layer
+
+    return model

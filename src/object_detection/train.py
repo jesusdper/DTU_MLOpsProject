@@ -1,49 +1,79 @@
+import os
 import torch
 from pathlib import Path
-import typer
+import logging
+import yaml
+from omegaconf import DictConfig
+import hydra
+from torch.utils.data import DataLoader
+from model import create_yolo_model, CustomPTDataset
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-def train_model(processed_dir: Path, output_dir: Path):
+@hydra.main(config_path=r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\configs", config_name="config.yaml")
+def main(cfg: DictConfig):
     """
-    Train the model using preprocessed data.
-
-    Args:
-        processed_dir (Path): Path to the directory containing preprocessed data.
-        output_dir (Path): Path to the directory where outputs will be saved.
+    Main function to train YOLO model using Ultralytics and Hydra.
     """
-    typer.echo(f"Loading preprocessed data from {processed_dir}...")
+    # Print the configuration
+    print(f"Starting training with config: {yaml.dump(cfg)}")
+    logger.info(f"Starting training with config: {cfg}")
 
-    # Load training data
+    # Load preprocessed data paths from the configuration
+    processed_dir = Path(cfg.data.processed_dir).resolve()
     train_images_path = processed_dir / "train_images.pt"
-    train_target_path = processed_dir / "train_target.pt"
+    train_targets_path = processed_dir / "train_target.pt"
 
-    if not train_images_path.exists() or not train_target_path.exists():
-        typer.echo(f"Error: Missing processed files: {train_images_path} or {train_target_path}")
-        return
+    # Check if the .pt files exist, if not, modify them using CustomPTDataset and save them
+    if not train_images_path.exists() or not train_targets_path.exists():
+        logger.info(f"Processing and saving {train_images_path} and {train_targets_path}")
 
-    train_images = torch.load(train_images_path)
-    train_target = torch.load(train_target_path)
+        # You would need to define the images and targets, below is a sample modification
+        # Assuming images and targets are in some form of raw data (e.g., numpy arrays or lists)
+        images, targets = load_raw_data()  # Function to load your raw data
 
-    # Convert lists to tensors (if they're not already)
-    train_images = torch.stack(train_images) if isinstance(train_images, list) else train_images
-    train_target = torch.stack(train_target) if isinstance(train_target, list) else train_target
+        # Save the raw data as tensors using torch.save
+        torch.save(images, train_images_path)
+        torch.save(targets, train_targets_path)
+        logger.info(f"Processed data saved to {train_images_path} and {train_targets_path}")
 
-    typer.echo(f"Loaded training data: images ({train_images.shape}), targets ({train_target.shape})")
+    # Setup the dataset and dataloaders
+    train_dataset = CustomPTDataset(train_images_path, train_targets_path)
+    train_loader = DataLoader(train_dataset, batch_size=cfg.training.batch_size, shuffle=True)
 
-    # Placeholder for model training logic
-    typer.echo("Training the model...")
+    logger.info(f"Loaded {len(train_loader.dataset)} training samples.")
 
-    # Example output: Save a dummy model file
-    output_dir.mkdir(parents=True, exist_ok=True)
-    model_path = output_dir / "trained_model.pt"
-    torch.save({"dummy_model": True}, model_path)
+    # Create YOLO model
+    model = create_yolo_model(model_path=cfg.model.pretrained_weights, num_classes=cfg.data.num_classes)
 
-    typer.echo(f"Model saved to {model_path}")
+    # Prepare dataset config file for YOLO
+    data_config = {
+        'train': str(processed_dir),  # Path to training images directory
+        'val': str(processed_dir),  # Path to validation images directory
+        'nc': cfg.data.num_classes,  # Number of classes
+        'names': list(cfg.data.class_names)  # Ensure this is a simple Python list
+    }
+
+    # Save the YAML config file for YOLO
+    data_yaml_path = r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\configs\data.yaml"  # processed_dir / "data.yaml"
+    with open(data_yaml_path, "w") as f:
+        yaml.dump(data_config, f)
+    logger.info(f"Data configuration saved to {data_yaml_path}")
+
+    # Train the model
+    model.train(
+        data=str(data_yaml_path),  # Path to dataset config file
+        epochs=cfg.training.epochs,  # Number of epochs
+        imgsz=cfg.training.img_size,  # Image size
+        batch=cfg.training.batch_size,  # Batch size
+        name=cfg.training.experiment_name,  # Experiment name
+        project=cfg.training.output_dir,  # Output directory for saving results
+        # Disable validation since data.yaml already includes the train and val paths
+    )
 
 
 if __name__ == "__main__":
-    # Hardcoded paths for convenience
-    processed_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed")
-    output_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\models")
-
-    train_model(processed_dir, output_dir)
+    main()
