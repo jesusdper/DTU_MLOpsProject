@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 from pathlib import Path
-import typer
+import typer  # type: ignore
 from PIL import Image
 import numpy as np
 import os
@@ -8,6 +8,8 @@ import logging
 from random import shuffle
 import urllib.request
 import tarfile
+from typing import List
+import json
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -15,17 +17,41 @@ logger = logging.getLogger(__name__)
 
 # VOC 2012 class labels (20 classes)
 VOC_CLASSES = [
-    'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair',
-    'cow', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa',
-    'train', 'tvmonitor', 'diningtable'
+    "aeroplane",
+    "bicycle",
+    "bird",
+    "boat",
+    "bottle",
+    "bus",
+    "car",
+    "cat",
+    "chair",
+    "cow",
+    "dog",
+    "horse",
+    "motorbike",
+    "person",
+    "pottedplant",
+    "sheep",
+    "sofa",
+    "train",
+    "tvmonitor",
+    "diningtable",
 ]
 
 # Create a mapping of class names to class indices
 CLASS_TO_ID = {class_name: idx for idx, class_name in enumerate(VOC_CLASSES)}
 
-def download_voc_dataset(save_dir: Path):
+# Set environment variables
+os.environ["CLASS_TO_ID"] = json.dumps(CLASS_TO_ID)
+os.environ["DATASET_URL"] = (
+    "http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar"
+)
+
+
+def download_voc_dataset(save_dir: Path) -> None:
     """Download and extract the PASCAL VOC 2012 dataset."""
-    url = "http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar"
+    url = os.environ["DATASET_URL"]
     save_dir = save_dir.resolve()
     os.makedirs(save_dir, exist_ok=True)
     dataset_tar_path = save_dir / "VOC2012.tar"
@@ -42,7 +68,8 @@ def download_voc_dataset(save_dir: Path):
         tar.extractall(path=save_dir)
     logger.info("Dataset extracted.")
 
-def convert_voc_to_yolo(xml_path: Path, img_width: int, img_height: int):
+
+def convert_voc_to_yolo(xml_path: Path, img_width: int, img_height: int) -> List:
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
@@ -51,7 +78,9 @@ def convert_voc_to_yolo(xml_path: Path, img_width: int, img_height: int):
     for obj in root.findall("object"):
         class_name = obj.find("name").text
         if class_name not in CLASS_TO_ID:
-            logger.warning(f"Unknown class '{class_name}' in {xml_path}. Skipping object...")
+            logger.warning(
+                f"Unknown class '{class_name}' in {xml_path}. Skipping object..."
+            )
             continue
 
         class_id = CLASS_TO_ID[class_name]
@@ -75,7 +104,10 @@ def convert_voc_to_yolo(xml_path: Path, img_width: int, img_height: int):
 
     return yolo_annotations
 
-def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size: tuple = (256, 256)):
+
+def preprocess_data(
+    raw_dir: Path, processed_dir: Path, splits: dict, image_size: tuple = (256, 256)
+) -> None:
     raw_dir = raw_dir.resolve()
     processed_dir = processed_dir.resolve()
     os.makedirs(processed_dir, exist_ok=True)
@@ -92,7 +124,7 @@ def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size
     for split in split_names:
         split_dirs[split] = {
             "images": processed_dir / split / "images",
-            "labels": processed_dir / split / "labels"
+            "labels": processed_dir / split / "labels",
         }
         os.makedirs(split_dirs[split]["images"], exist_ok=True)
         os.makedirs(split_dirs[split]["labels"], exist_ok=True)
@@ -100,11 +132,13 @@ def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size
     start_idx = 0
     for split, count in splits.items():
         logger.info(f"Processing {count} samples for {split} set...")
-        for i, image_file in enumerate(all_files[start_idx: start_idx + count]):
+        for i, image_file in enumerate(all_files[start_idx : start_idx + count]):
             annotation_file = annotations_dir / f"{image_file.stem}.xml"
 
             if not annotation_file.exists():
-                logger.warning(f"Annotation file not found for {image_file}. Skipping...")
+                logger.warning(
+                    f"Annotation file not found for {image_file}. Skipping..."
+                )
                 continue
 
             try:
@@ -113,9 +147,13 @@ def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size
                     img = img.resize(image_size)
                     img.save(split_dirs[split]["images"] / f"{image_file.stem}.jpg")
 
-                yolo_annotations = convert_voc_to_yolo(annotation_file, image_size[1], image_size[0])
+                yolo_annotations = convert_voc_to_yolo(
+                    annotation_file, image_size[1], image_size[0]
+                )
 
-                with open(split_dirs[split]["labels"] / f"{image_file.stem}.txt", "w") as label_file:
+                with open(
+                    split_dirs[split]["labels"] / f"{image_file.stem}.txt", "w"
+                ) as label_file:
                     for annotation in yolo_annotations:
                         label_file.write(" ".join(map(str, annotation)) + "\n")
 
@@ -127,12 +165,14 @@ def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size
 
     logger.info(f"Processed data saved to {processed_dir}")
 
-def load_data():
+
+def load_data() -> None:
     raw_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\raw")
     processed_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed")
     splits = {"train": 100, "val": 50, "test": 20}
     download_voc_dataset(raw_dir)
     preprocess_data(raw_dir, processed_dir, splits)
+
 
 if __name__ == "__main__":
     typer.run(load_data)

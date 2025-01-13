@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 # Define paths (adjust as needed)
 data_dir = Path(
-    "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed/test/images")  # Assuming images are inside 'images' subfolder
+    "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed/test/images"
+)  # Assuming images are inside 'images' subfolder
 output_dir = Path("C:/Users/jdiaz/Desktop/DTU_MLOpsProject/results/inference")
 model_dir = Path("C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models/yolov8_voc2")
 model_path = model_dir / "weights/best.pt"

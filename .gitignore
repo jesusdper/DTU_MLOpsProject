@@ -1,5 +1,10 @@
 docs/site/
 
+# data
+data/
+/home/amapy/Documents/DTU_MLOpsProject/src/object_detection/C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed
+/home/amapy/Documents/DTU_MLOpsProject/src/object_detection/C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\raw
+
 # test cache
 manual_test/
 
