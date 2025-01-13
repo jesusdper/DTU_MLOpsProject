@@ -1,92 +1,138 @@
-import torch
-from torch.utils.data import DataLoader, Dataset
+import xml.etree.ElementTree as ET
 from pathlib import Path
-import torch.optim as optim
-import torch.nn as nn
 import typer
-import hydra
-from omegaconf import DictConfig
-from model import YOLOv5  # Replace with your model import
-from torchvision import transforms
-from utils import collate_fn  # For handling batch formation in DataLoader
+from PIL import Image
+import numpy as np
+import os
+import logging
+from random import shuffle
+import urllib.request
+import tarfile
 
-# Custom Dataset class for loading VOC2012 data
-class VOC2012Dataset(Dataset):
-    def __init__(self, images_dir: Path, targets_dir: Path, transform=None):
-        self.images = torch.load(images_dir)  # Loaded image tensors
-        self.targets = torch.load(targets_dir)  # Loaded target tensors (bboxes + class_ids)
-        self.transform = transform
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-    def __len__(self):
-        return len(self.images)
+# VOC 2012 class labels (20 classes)
+VOC_CLASSES = [
+    'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair',
+    'cow', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa',
+    'train', 'tvmonitor', 'diningtable'
+]
 
-    def __getitem__(self, idx):
-        image = self.images[idx]
-        target = self.targets[idx]
+# Create a mapping of class names to class indices
+CLASS_TO_ID = {class_name: idx for idx, class_name in enumerate(VOC_CLASSES)}
 
-        if self.transform:
-            image = self.transform(image)
+def download_voc_dataset(save_dir: Path):
+    """Download and extract the PASCAL VOC 2012 dataset."""
+    url = "http://host.robots.ox.ac.uk/pascal/VOC/voc2012/VOCtrainval_11-May-2012.tar"
+    save_dir = save_dir.resolve()
+    os.makedirs(save_dir, exist_ok=True)
+    dataset_tar_path = save_dir / "VOC2012.tar"
 
-        return image, target
+    if not dataset_tar_path.exists():
+        logger.info("Downloading PASCAL VOC 2012 dataset...")
+        urllib.request.urlretrieve(url, dataset_tar_path)
+        logger.info("Download completed.")
+    else:
+        logger.info("PASCAL VOC 2012 dataset already downloaded.")
 
-@hydra.main(config_path="configs", config_name="config.yaml")
-def train_model(config: DictConfig) -> None:
-    """
-    Train the object detection model with the preprocessed VOC2012 data.
-    Args:
-        config: Configurations, including hyperparameters, model architecture, etc.
-    """
-    # Set up directories
-    processed_dir = Path(config.data.processed_dir)
-    output_dir = Path(config.output_dir)
-    images_dir = processed_dir / "train_images.pt"
-    targets_dir = processed_dir / "train_target.pt"
+    logger.info("Extracting dataset...")
+    with tarfile.open(dataset_tar_path) as tar:
+        tar.extractall(path=save_dir)
+    logger.info("Dataset extracted.")
 
-    # Data transformations
-    transform = transforms.Compose([
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        transforms.ToTensor(),
-    ])
+def convert_voc_to_yolo(xml_path: Path, img_width: int, img_height: int):
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
 
-    # Create dataset and dataloaders
-    dataset = VOC2012Dataset(images_dir, targets_dir, transform=transform)
-    dataloader = DataLoader(dataset, batch_size=config.batch_size, collate_fn=collate_fn, shuffle=True)
+    yolo_annotations = []
 
-    # Initialize the model
-    model = YOLOv5()  # Replace with your actual model class
-    model.train()
+    for obj in root.findall("object"):
+        class_name = obj.find("name").text
+        if class_name not in CLASS_TO_ID:
+            logger.warning(f"Unknown class '{class_name}' in {xml_path}. Skipping object...")
+            continue
 
-    # Loss function and optimizer
-    criterion = nn.CrossEntropyLoss()  # This depends on your model's requirements
-    optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
+        class_id = CLASS_TO_ID[class_name]
+        bndbox = obj.find("bndbox")
+        x_min = int(bndbox.find("xmin").text)
+        y_min = int(bndbox.find("ymin").text)
+        x_max = int(bndbox.find("xmax").text)
+        y_max = int(bndbox.find("ymax").text)
 
-    # Training loop
-    for epoch in range(config.num_epochs):
-        for batch_idx, (images, targets) in enumerate(dataloader):
-            # Move data to GPU if available
-            images = images.cuda()  # Assuming you have GPU
-            targets = [target.cuda() for target in targets]  # Assuming you want to move target to GPU as well
+        x_center = (x_min + x_max) / 2 / img_width
+        y_center = (y_min + y_max) / 2 / img_height
+        width = (x_max - x_min) / img_width
+        height = (y_max - y_min) / img_height
 
-            # Forward pass
-            optimizer.zero_grad()
-            outputs = model(images)
+        x_center = max(0.0, min(1.0, x_center))
+        y_center = max(0.0, min(1.0, y_center))
+        width = max(0.0, min(1.0, width))
+        height = max(0.0, min(1.0, height))
 
-            # Calculate loss
-            loss = criterion(outputs, targets)  # Modify as per your model's output format and loss function
+        yolo_annotations.append([class_id, x_center, y_center, width, height])
 
-            # Backward pass and optimization
-            loss.backward()
-            optimizer.step()
+    return yolo_annotations
 
-            if batch_idx % 10 == 0:
-                typer.echo(f"Epoch [{epoch}/{config.num_epochs}], Batch [{batch_idx}/{len(dataloader)}], Loss: {loss.item()}")
+def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size: tuple = (256, 256)):
+    raw_dir = raw_dir.resolve()
+    processed_dir = processed_dir.resolve()
+    os.makedirs(processed_dir, exist_ok=True)
 
-        # Save model checkpoints
-        torch.save(model.state_dict(), output_dir / f"model_epoch_{epoch}.pth")
+    images_dir = raw_dir / "VOCdevkit/VOC2012/JPEGImages"
+    annotations_dir = raw_dir / "VOCdevkit/VOC2012/Annotations"
 
-    # Save the final model
-    torch.save(model.state_dict(), output_dir / "final_model.pth")
-    typer.echo(f"Training complete. Final model saved to {output_dir}")
+    all_files = list(images_dir.iterdir())
+    shuffle(all_files)
+
+    split_names = list(splits.keys())
+    split_dirs = {}
+
+    for split in split_names:
+        split_dirs[split] = {
+            "images": processed_dir / split / "images",
+            "labels": processed_dir / split / "labels"
+        }
+        os.makedirs(split_dirs[split]["images"], exist_ok=True)
+        os.makedirs(split_dirs[split]["labels"], exist_ok=True)
+
+    start_idx = 0
+    for split, count in splits.items():
+        logger.info(f"Processing {count} samples for {split} set...")
+        for i, image_file in enumerate(all_files[start_idx: start_idx + count]):
+            annotation_file = annotations_dir / f"{image_file.stem}.xml"
+
+            if not annotation_file.exists():
+                logger.warning(f"Annotation file not found for {image_file}. Skipping...")
+                continue
+
+            try:
+                with Image.open(image_file) as img:
+                    img = img.convert("RGB")
+                    img = img.resize(image_size)
+                    img.save(split_dirs[split]["images"] / f"{image_file.stem}.jpg")
+
+                yolo_annotations = convert_voc_to_yolo(annotation_file, image_size[1], image_size[0])
+
+                with open(split_dirs[split]["labels"] / f"{image_file.stem}.txt", "w") as label_file:
+                    for annotation in yolo_annotations:
+                        label_file.write(" ".join(map(str, annotation)) + "\n")
+
+            except Exception as e:
+                logger.error(f"Error processing {image_file} or {annotation_file}: {e}")
+                continue
+
+        start_idx += count
+
+    logger.info(f"Processed data saved to {processed_dir}")
+
+def load_data():
+    raw_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\raw")
+    processed_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed")
+    splits = {"train": 100, "val": 50, "test": 20}
+    download_voc_dataset(raw_dir)
+    preprocess_data(raw_dir, processed_dir, splits)
 
 if __name__ == "__main__":
-    typer.run(train_model)
+    typer.run(load_data)
