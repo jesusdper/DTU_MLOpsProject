@@ -7,7 +7,6 @@ from omegaconf import DictConfig
 import hydra
 from ultralytics import YOLO
 from model import CustomDataset  # Assuming custom dataset function to read images and labels
-
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
