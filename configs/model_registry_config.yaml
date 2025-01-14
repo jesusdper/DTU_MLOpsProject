@@ -1,0 +1,5 @@
+model_registry:
+  url: "http://localhost:8000"  # The URL of your model registry
+  api_key: "abcd1234efgh5678ijklmnopqrstuvwx"                    # The API key for authentication
+  upload_endpoint: "/upload"                 # Endpoint for uploading models
+  status_endpoint: "/status"                 # Endpoint to get model status
