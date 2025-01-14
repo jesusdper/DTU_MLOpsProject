@@ -4,6 +4,9 @@ from io import BytesIO
 from PIL import Image
 import torch
 import os
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
+
 
 app = FastAPI()
 model = YOLO("models/yolov8_voc5/weights/best.pt")
@@ -44,3 +47,42 @@ async def predict(file: UploadFile = File(...)):
 
     return {"predictions": predictions}
 
+
+import os
+from fastapi import FastAPI, File, UploadFile
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+
+@app.post("/upload")
+async def upload_file(file: UploadFile = File(...)):
+    try:
+        # Ensure the uploads directory exists
+        upload_dir = './uploads'
+        os.makedirs(upload_dir, exist_ok=True)  # Create directory if it doesn't exist
+
+        # Define the file path where the model will be saved
+        model_path = os.path.join(upload_dir, file.filename)
+
+        # Save the uploaded file
+        with open(model_path, "wb") as f:
+            f.write(file.file.read())
+
+        return {"message": f"Model {file.filename} uploaded successfully to {model_path}"}
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": str(e)})
+
+
+@app.get("/status/{model_name}")
+async def model_status(model_name: str):
+    try:
+        # Logic to check model status
+        # For example, check if the file exists in the upload directory
+        model_path = f"./uploads/{model_name}.zip"
+        if os.path.exists(model_path):
+            return {"status": "Model exists"}
+        else:
+            return {"status": "Model not found"}
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"message": str(e)})
