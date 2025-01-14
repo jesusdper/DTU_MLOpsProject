@@ -132,7 +132,7 @@ def preprocess_data(
     start_idx = 0
     for split, count in splits.items():
         logger.info(f"Processing {count} samples for {split} set...")
-        for i, image_file in enumerate(all_files[start_idx : start_idx + count]):
+        for _, image_file in enumerate(all_files[start_idx : start_idx + count]):
             annotation_file = annotations_dir / f"{image_file.stem}.xml"
 
             if not annotation_file.exists():
@@ -167,8 +167,8 @@ def preprocess_data(
 
 
 def load_data() -> None:
-    raw_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\raw")
-    processed_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed")
+    raw_dir = Path("./data/raw")
+    processed_dir = Path("./data/processed")
     splits = {"train": 100, "val": 50, "test": 20}
     download_voc_dataset(raw_dir)
     preprocess_data(raw_dir, processed_dir, splits)
