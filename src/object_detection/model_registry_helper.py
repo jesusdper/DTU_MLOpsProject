@@ -3,10 +3,7 @@ import requests
 import logging
 import yaml
 from dotenv import load_dotenv
-<<<<<<< HEAD
 import time
-=======
->>>>>>> origin/main
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -33,14 +30,11 @@ load_dotenv()
 MODEL_REGISTRY_URL = os.getenv('MODEL_REGISTRY_URL')
 API_KEY = os.getenv('API_KEY')
 
-<<<<<<< HEAD
 def get_new_version(model_name):
     """Generate a version string for the model using timestamp."""
     current_time = time.strftime("%Y%m%d%H%M%S")  # Using timestamp as version
     return f"{model_name}_v{current_time}"
 
-=======
->>>>>>> origin/main
 def upload_model(model_archive_path, model_name):
     """Uploads a model archive to the model registry."""
     logging.info(f"Uploading model {model_name} to the registry...")
@@ -50,7 +44,6 @@ def upload_model(model_archive_path, model_name):
         logging.error(f"Model archive {model_archive_path} does not exist.")
         return
 
-<<<<<<< HEAD
     # Generate a version for the model
     model_version = get_new_version(model_name)
     logging.info(f"Uploading model version: {model_version}")
@@ -59,26 +52,14 @@ def upload_model(model_archive_path, model_name):
     try:
         with open(model_archive_path, 'rb') as model_file:
             files = {'file': (model_version, model_file, 'application/octet-stream')}
-=======
-    # Open the model archive and upload
-    try:
-        with open(model_archive_path, 'rb') as model_file:
-            files = {'file': (model_name, model_file, 'application/octet-stream')}
->>>>>>> origin/main
             headers = {'Authorization': f'Bearer {API_KEY}'}
 
             response = requests.post(f"{MODEL_REGISTRY_URL}/upload", files=files, headers=headers)
 
             if response.status_code == 200:
-<<<<<<< HEAD
                 logging.info(f"Model {model_version} uploaded successfully!")
             else:
                 logging.error(f"Failed to upload model {model_version}. Status code: {response.status_code}")
-=======
-                logging.info(f"Model {model_name} uploaded successfully!")
-            else:
-                logging.error(f"Failed to upload model {model_name}. Status code: {response.status_code}")
->>>>>>> origin/main
                 logging.error(response.text)
     except Exception as e:
         logging.error(f"Error uploading model: {e}")
@@ -98,7 +79,6 @@ def get_model_status(model_name):
         logging.error(f"Failed to fetch status for model {model_name}. Status code: {response.status_code}")
         logging.error(response.text)
 
-<<<<<<< HEAD
 def upload_latest_model(model_path, model_name):
     """Automate uploading the latest model."""
     model_version = get_new_version(model_name)
@@ -112,15 +92,6 @@ if __name__ == "__main__":
 
     # Compress and upload the latest model
     upload_latest_model(model_path, model_name)
-=======
-if __name__ == "__main__":
-    # Example usage
-    model_path = r'C:\Users\jdiaz\Desktop\DTU_MLOpsProject\models\yolov8_voc5.zip'  # Ensure the path is correct
-    model_name = 'yolov8_voc5'  # Replace with actual model name
-
-    # Upload model to registry
-    upload_model(model_path, model_name)
->>>>>>> origin/main
 
     # Get model status
     get_model_status(model_name)
