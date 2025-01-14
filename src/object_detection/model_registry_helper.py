@@ -35,13 +35,22 @@ def get_new_version(model_name):
     current_time = time.strftime("%Y%m%d%H%M%S")  # Using timestamp as version
     return f"{model_name}_v{current_time}"
 
-def upload_model(model_archive_path, model_name):
+def upload_model(model_archive_path, model_name, api_key=None,model_registry_url=None):
     """Uploads a model archive to the model registry."""
     logging.info(f"Uploading model {model_name} to the registry...")
 
     # Ensure the archive file exists
     if not os.path.exists(model_archive_path):
         logging.error(f"Model archive {model_archive_path} does not exist.")
+        return
+
+    # Use the provided API key or fallback to the global API_KEY
+    api_key = api_key or API_KEY
+    model_registry_url = model_registry_url or MODEL_REGISTRY_URL
+
+    # Check if API key is available
+    if not api_key:
+        logging.error("API key is not provided and not found in the environment.")
         return
 
     # Generate a version for the model
@@ -52,9 +61,9 @@ def upload_model(model_archive_path, model_name):
     try:
         with open(model_archive_path, 'rb') as model_file:
             files = {'file': (model_version, model_file, 'application/octet-stream')}
-            headers = {'Authorization': f'Bearer {API_KEY}'}
+            headers = {'Authorization': f'Bearer {api_key}'}
 
-            response = requests.post(f"{MODEL_REGISTRY_URL}/upload", files=files, headers=headers)
+            response = requests.post(f"{model_registry_url}/upload", files=files, headers=headers)
 
             if response.status_code == 200:
                 logging.info(f"Model {model_version} uploaded successfully!")
@@ -87,8 +96,8 @@ def upload_latest_model(model_path, model_name):
 
 if __name__ == "__main__":
     # Example usage
-    model_path = r'C:\Users\jdiaz\Desktop\DTU_MLOpsProject\models\yolov8_voc5'  # Path to model directory (before zipping)
-    model_name = 'yolov8_voc5'  # Replace with actual model name
+    model_path = r'C:\Users\jdiaz\Desktop\DTU_MLOpsProject\models\yolov8_voc_test'  # Path to model directory (before zipping)
+    model_name = 'yolov8_voc_test'  # Replace with actual model name
 
     # Compress and upload the latest model
     upload_latest_model(model_path, model_name)

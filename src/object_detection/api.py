@@ -9,7 +9,7 @@ from fastapi.responses import JSONResponse
 
 
 app = FastAPI()
-model = YOLO("models/yolov8_voc5/weights/best.pt")
+model = YOLO("models/yolov8_voc_test/weights/best.pt")
 
 
 
@@ -51,9 +51,6 @@ async def predict(file: UploadFile = File(...)):
 import os
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
-
-app = FastAPI()
-
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):

@@ -7,19 +7,21 @@ from omegaconf import DictConfig
 import hydra
 from ultralytics import YOLO
 from model import CustomDataset, create_yolo_model
-from torch.profiler import profile, record_function, ProfilerActivity
+from model_registry_helper import upload_model  # Import the upload_model function
 from torch.utils.tensorboard import SummaryWriter  # Import TensorBoard SummaryWriter
-
+import shutil  # For compressing the model
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
 @hydra.main(config_path=r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\configs", config_name="config.yaml")
 def main(cfg: DictConfig):
     """
     Main function to train YOLO model using Ultralytics and Hydra.
     """
     # Print the configuration
+
     logger.info(f"Starting training with config: {yaml.dump(cfg)}")
 
     # Load processed data paths from configuration
@@ -38,7 +40,6 @@ def main(cfg: DictConfig):
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.training.batch_size, shuffle=True)
 
     logger.info(f"Loaded {len(train_loader.dataset)} training samples.")
-
 
     # Prepare dataset config file for YOLO
     data_config = {
@@ -63,24 +64,48 @@ def main(cfg: DictConfig):
     tb_log_dir.mkdir(parents=True, exist_ok=True)
     writer = SummaryWriter(log_dir=tb_log_dir)
 
-    # Train the model and profile the training loop
-   # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], profile_memory=True, with_stack=True) as prof:
-   #     with record_function("model_training"):
+    # Train the model
     model.train(
-                data=str(data_yaml_path),  # Path to dataset config file
-                epochs=cfg.training.epochs,  # Number of epochs
-                imgsz=cfg.training.img_size,  # Image size
-                batch=cfg.training.batch_size,  # Batch size
-                name=cfg.training.experiment_name,  # Experiment name
-                project=cfg.training.output_dir,  # Output directory for saving results
-            )
+        data=str(data_yaml_path),  # Path to dataset config file
+        epochs=cfg.training.epochs,  # Number of epochs
+        imgsz=cfg.training.img_size,  # Image size
+        batch=cfg.training.batch_size,  # Batch size
+        name=cfg.training.experiment_name,  # Experiment name
+        project=cfg.training.output_dir,  # Output directory for saving results
+    )
 
-    # Save profiling results for TensorBoard visualization
-    #prof.export_chrome_trace(str(tb_log_dir / "train_profile.json"))  # Save profiling trace in JSON format
-    #writer.add_graph(model.model, next(iter(train_loader))[0].unsqueeze(0))  # Log the model graph to TensorBoard
+    # Dynamically find the correct model path
+    output_dir = Path(cfg.training.output_dir)
+    experiment_dir = list(output_dir.glob(f"{cfg.training.experiment_name}*"))
+    if len(experiment_dir) == 1:
+        trained_model_dir = experiment_dir[0] / "weights"
+        trained_model_path = trained_model_dir / "best.pt"
+    elif len(experiment_dir) > 1:
+        logger.error(f"Multiple directories found for experiment name {cfg.training.experiment_name}.")
+        return
+    else:
+        logger.error(f"No directory found for experiment name {cfg.training.experiment_name}.")
+        return
 
-    # Close the TensorBoard writer
-    #writer.close()
+    # Log the model path
+    logger.info(f"Trained model path: {trained_model_path}")
+
+    if trained_model_path.exists():
+        # Compress the trained model before uploading
+        zip_model_path = f"{trained_model_path}.zip"
+        shutil.make_archive(zip_model_path.replace(".zip", ""), 'zip', trained_model_path.parent, trained_model_path.name)
+
+        # Use the existing upload_model function from model_registry_helper to upload the model
+        upload_model(
+            model_archive_path=zip_model_path,  # Path to the zipped model file
+            model_name=cfg.training.experiment_name,  # Model name for registry
+            api_key=cfg.upload.api_key,  # API key for uploading
+            model_registry_url=cfg.upload.model_registry_url  # Model registry URL
+        )
+        logger.info(f"Model {trained_model_path} successfully uploaded.")
+    else:
+        logger.error("Trained model not found!")
+
 
 if __name__ == "__main__":
     main()
