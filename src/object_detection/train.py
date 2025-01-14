@@ -14,7 +14,6 @@ from torch.utils.tensorboard import SummaryWriter  # Import TensorBoard SummaryW
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 @hydra.main(config_path=r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\configs", config_name="config.yaml")
 def main(cfg: DictConfig):
     """
