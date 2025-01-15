@@ -107,6 +107,8 @@ def main(cfg: DictConfig):
 
     # Dynamically find the correct model path
     output_dir = Path(cfg.training.output_dir)
+    logger.info(f"Output dir {output_dir}")
+
     experiment_dir = list(output_dir.glob(f"{cfg.training.experiment_name}*"))
     if len(experiment_dir) == 1:
         trained_model_dir = experiment_dir[0] / "weights"
@@ -123,13 +125,14 @@ def main(cfg: DictConfig):
 
     if trained_model_path.exists():
         # Compress the trained model before uploading
-        zip_model_path = f"{trained_model_path}.zip"
-        shutil.make_archive(zip_model_path.replace(".zip", ""), 'zip', trained_model_path.parent,
-                            trained_model_path.name)
+        #zip_model_path = str(trained_model_path).replace(".pt", ".zip")
+        #shutil.make_archive(zip_model_path.replace(".zip", ""), 'zip', trained_model_path.parent,
+        #                    trained_model_path.name)
+        #logger.info(f"Zip model path: {zip_model_path}")
 
         # Use the existing upload_model function from model_registry_helper to upload the model
         upload_model(
-            model_archive_path=zip_model_path,  # Path to the zipped model file
+            model_archive_path=trained_model_path,  # Path to the zipped model file
             model_name=cfg.training.experiment_name,  # Model name for registry
             api_key=cfg.upload.api_key,  # API key for uploading
             model_registry_url=cfg.upload.model_registry_url  # Model registry URL

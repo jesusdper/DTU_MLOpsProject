@@ -4,6 +4,8 @@ import logging
 import yaml
 from dotenv import load_dotenv
 import time
+from pathlib import Path
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -35,14 +37,29 @@ def get_new_version(model_name):
     current_time = time.strftime("%Y%m%d%H%M%S")  # Using timestamp as version
     return f"{model_name}_v{current_time}"
 
-def upload_model(model_archive_path, model_name, api_key=None,model_registry_url=None):
+from pathlib import Path
+
+def upload_model(model_archive_path, model_name, api_key=None, model_registry_url=None):
     """Uploads a model archive to the model registry."""
     logging.info(f"Uploading model {model_name} to the registry...")
 
     # Ensure the archive file exists
-    if not os.path.exists(model_archive_path):
+    model_archive_path = Path(model_archive_path)  # Ensure it's a Path object
+    if not model_archive_path.exists():
         logging.error(f"Model archive {model_archive_path} does not exist.")
         return
+
+    # Ensure the model name ends with .pt
+    if not model_name.endswith(".pt"):
+        model_name = f"{model_name}.pt"
+        logging.info(f"Adjusted model name to ensure .pt extension: {model_name}")
+
+    # Ensure the file has a .pt extension
+    if not model_archive_path.suffix == ".pt":
+        correct_path = model_archive_path.with_suffix(".pt")
+        os.rename(model_archive_path, correct_path)
+        logging.info(f"Renamed model file to ensure .pt extension: {correct_path}")
+        model_archive_path = correct_path
 
     # Use the provided API key or fallback to the global API_KEY
     api_key = api_key or API_KEY
@@ -54,21 +71,20 @@ def upload_model(model_archive_path, model_name, api_key=None,model_registry_url
         return
 
     # Generate a version for the model
-    model_version = get_new_version(model_name)
-    logging.info(f"Uploading model version: {model_version}")
+    logging.info(f"Uploading model version: {model_name}")
 
     # Open the model archive and upload
     try:
         with open(model_archive_path, 'rb') as model_file:
-            files = {'file': (model_version, model_file, 'application/octet-stream')}
+            files = {'file': (model_name, model_file, 'application/octet-stream')}
             headers = {'Authorization': f'Bearer {api_key}'}
 
             response = requests.post(f"{model_registry_url}/upload", files=files, headers=headers)
 
             if response.status_code == 200:
-                logging.info(f"Model {model_version} uploaded successfully!")
+                logging.info(f"Model {model_name} uploaded successfully!")
             else:
-                logging.error(f"Failed to upload model {model_version}. Status code: {response.status_code}")
+                logging.error(f"Failed to upload model {model_name}. Status code: {response.status_code}")
                 logging.error(response.text)
     except Exception as e:
         logging.error(f"Error uploading model: {e}")

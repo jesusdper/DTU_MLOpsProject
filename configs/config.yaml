@@ -30,7 +30,7 @@ training:
   epochs: 1
   img_size: 640
   batch_size: 16
-  experiment_name: "yolov8_voc_test_new"
+  experiment_name: "yolov8_voc_test_v3"
   output_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models"
 
 upload:
