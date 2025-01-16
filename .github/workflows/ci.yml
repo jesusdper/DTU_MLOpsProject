@@ -1,9 +1,3 @@
-name: Continuous Integration Test
-
-on:
-  push:
-    branches:
-      - main
 jobs:
   train_model:
     runs-on: ubuntu-latest
@@ -17,6 +11,10 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+      - name: Set up Google Cloud credentials
+        run: echo "${{ secrets.GCP_CREDENTIALS_JSON }}" > "${HOME}/gcp-key.json"
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: "${HOME}/gcp-key.json"
       - name: Pull data using DVC
         run: |
           dvc pull
