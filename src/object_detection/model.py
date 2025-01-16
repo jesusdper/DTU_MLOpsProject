@@ -1,25 +1,62 @@
-# model.py
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
+from torch.utils.data import Dataset, DataLoader
+from ultralytics import YOLO  # Import YOLOv8
+import numpy as np
+import torch
+from torch.utils.data import Dataset
+from pathlib import Path
+from PIL import Image
 
-class YOLOv5(nn.Module):
-    def __init__(self, num_classes: int, img_size: int = 256):
-        super(YOLOv5, self).__init__()
-        self.num_classes = num_classes
-        self.img_size = img_size
 
-        # Define the layers here (This is a simplified version)
-        self.conv1 = nn.Conv2d(3, 32, 3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(32, 64, 3, stride=2, padding=1)
-        self.conv3 = nn.Conv2d(64, 128, 3, stride=2, padding=1)
+class CustomDataset(Dataset):
+    def __init__(self, images_dir: Path, labels_dir: Path):
+        """
+        Custom Dataset for YOLO using images and YOLO annotations (text files).
 
-        # YOLO detection head (for simplicity, let's assume 3 anchors)
-        self.detect = nn.Conv2d(128, num_classes + 5, 1)  # 5 for box info (x, y, w, h, confidence)
+        Args:
+            images_dir (Path): Directory containing images.
+            labels_dir (Path): Directory containing YOLO annotations (text files).
+        """
+        self.images_dir = images_dir
+        self.labels_dir = labels_dir
+        self.image_files = list(images_dir.glob("*.jpg"))  # Assuming images are .jpg
+        self.label_files = {f.stem: f for f in labels_dir.glob("*.txt")}  # Map label file names to text files
 
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.relu(self.conv2(x))
-        x = F.relu(self.conv3(x))
-        x = self.detect(x)
-        return x
+        # Debugging lines to ensure images and labels are being loaded correctly
+        print(f"Found {len(self.image_files)} images")
+        print(f"Found {len(self.label_files)} label files")
+        print(f"Sample image: {self.image_files[0] if self.image_files else 'None'}")
+        print(f"Sample label: {list(self.label_files.keys())[0] if self.label_files else 'None'}")
+
+    def __len__(self):
+        return len(self.image_files)
+
+    def __getitem__(self, idx):
+        image_file = self.image_files[idx]
+        label_file = self.label_files.get(image_file.stem)
+
+        if not label_file:
+            raise FileNotFoundError(f"Label file not found for {image_file.name}")
+
+        # Load image
+        image = Image.open(image_file).convert("RGB")
+        image = image.resize((640, 640))  # Resize to match YOLO input size (adjust as necessary)
+        image = torch.tensor(np.array(image), dtype=torch.float32).permute(2, 0, 1) / 255.0  # Normalize and convert to tensor
+
+        # Load labels (YOLO format: class_id, x_center, y_center, width, height)
+        with open(label_file, "r") as f:
+            labels = [list(map(float, line.strip().split())) for line in f.readlines()]
+
+        labels = torch.tensor(labels, dtype=torch.float32)  # Convert labels to tensor
+
+        return image, labels
+
+
+
+def create_yolo_model(pretrained_weights, cfg):
+    """
+    Initialize the YOLO model.
+    """
+    model = YOLO(pretrained_weights)
+    model.cfg = cfg  # Attach configuration for easier access
+    return model
