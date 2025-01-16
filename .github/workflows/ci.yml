@@ -35,4 +35,4 @@ jobs:
     # Works
     - name: Train the model
       run: |
-        python src/object_detection/train_.py  # Modify with your training script
+        python src/object_detection/train.py  # Modify with your training script
