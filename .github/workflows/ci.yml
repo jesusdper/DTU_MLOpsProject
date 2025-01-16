@@ -33,7 +33,7 @@ jobs:
     - name: Authenticate gsutil
       run: |
         echo "Setting up gsutil authentication..."
-        echo "${{ secrets.GOOGLE_CLOUD_KEY }}" > gcp-key.json
+        echo "${{ secrets.GOOGLE_CLOUD_KEY }}" | base64 --decode > gcp-key.json
         export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
         gcloud config set pass_credentials_to_gsutil true
