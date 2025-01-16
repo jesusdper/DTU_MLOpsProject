@@ -1,4 +1,3 @@
-from tests import _PATH_DATA
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from src.object_detection.data import (
@@ -9,7 +8,7 @@ from src.object_detection.data import (
 import os
 import json
 from unittest.mock import patch, mock_open
-import pytest
+import pytest  # type:s ignore
 from PIL import Image
 
 # def test_download_voc_dataset():
@@ -76,7 +75,7 @@ def tmp_raw(tmp_path):
     os.makedirs(annotations_dir, exist_ok=True)
 
     # Add mock images and annotations
-    for i in range(100):
+    for i in range(170):
         # Create a small mock image
         img = Image.new(
             "RGB", (256, 256), color=(i % 256, (i * 2) % 256, (i * 3) % 256)
