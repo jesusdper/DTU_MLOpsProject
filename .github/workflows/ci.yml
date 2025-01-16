@@ -26,4 +26,4 @@ jobs:
           dvc pull
       - name: Train the model
         run: |
-          python train_model.py  # Modify with your training script
+          python src/object_detection/train_.py  # Modify with your training script
