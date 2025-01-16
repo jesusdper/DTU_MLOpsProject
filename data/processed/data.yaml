@@ -1,0 +1,25 @@
+names:
+- aeroplane
+- bicycle
+- bird
+- boat
+- bottle
+- bus
+- car
+- cat
+- chair
+- cow
+- dog
+- horse
+- motorbike
+- person
+- pottedplant
+- sheep
+- sofa
+- train
+- tvmonitor
+- diningtable
+nc: 20
+test: C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed\test\images
+train: C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed\train\images
+val: C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed\val\images
