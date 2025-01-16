@@ -1,36 +1,26 @@
-name: CML Continuous Workflow
+name: Continuous Integration
 
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main
 
 jobs:
-  cml:
+  train_model:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.11
-
-    - name: Install dependencies
-      run: |
-        pip install -r requirements.txt
-        pip install cml
-
-    - name: Pull data with DVC
-      run: |
-        dvc pull --no-run-cache
-
-    - name: Train model
-      run: |
-        python src/object_detection/train.py  # Replace with your training script
-
-    - name: Upload model and metrics to CML
-      run: |
-        cml-send-comment metrics.json --message "Model Training Results"
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+      - name: Pull data using DVC
+        run: |
+          dvc pull
+      - name: Train the model
+        run: |
+          python train_model.py  # Modify with your training script
