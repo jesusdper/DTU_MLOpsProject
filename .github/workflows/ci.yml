@@ -41,7 +41,7 @@ jobs:
     # Test GCS bucket access
     - name: Verify GCS access
       run: |
-        echo "Testing GCS bucket access..."
+        echo "Testing GCS bucket access.."
         gsutil ls gs://${{ secrets.GCS_BUCKET_NAME }}/
 
     # Install dependencies
