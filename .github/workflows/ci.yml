@@ -27,10 +27,14 @@ jobs:
           gcloud auth activate-service-account --key-file=$HOME/gcloud-key.json
           gcloud config set project ${{ secrets.GCP_PROJECT }}
 
+      - name: Configure gcloud to pass credentials to gsutil
+        run: |
+          gcloud config set pass_credentials_to_gsutil true
+
       - name: Pull data using DVC
         run: |
-          dvc pull data/processed
+          dvc pull data/processed/  # Specify the directory to pull
 
       - name: Train the model
         run: |
-          python src/object_detection/train_.py  # Modify with your training scrip
+          python src/object_detection/train_.py  # Modify with your training script
