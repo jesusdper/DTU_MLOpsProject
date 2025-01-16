@@ -4,27 +4,33 @@ on:
   push:
     branches:
       - main
+
 jobs:
   train_model:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: '3.11'
+
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+
       - name: Set up Google Cloud credentials
         run: |
           echo "${{ secrets.GOOGLE_CLOUD_KEY }}" > ${HOME}/gcloud-key.json
           gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
           gcloud config set project ${{ secrets.GCP_PROJECT }}
+
       - name: Pull data using DVC
         run: |
           dvc pull
+
       - name: Train the model
         run: |
-          python src/object_detection/train_.py  # Modify with your training scrip
+          python src/object_detection/train_.py  # Modify with your training script
