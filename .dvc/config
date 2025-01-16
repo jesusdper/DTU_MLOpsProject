@@ -1,8 +1,6 @@
 [core]
     remote = remote_storage
     autostage = true
-['remote "storage"']
-    url = gdrive://1-CptNzRVK50ju1Ypf00ekH6IkrHUIuCJ
 ['remote "remote_storage"']
     url = gs://pascalvoc_mlops/
     version_aware = true

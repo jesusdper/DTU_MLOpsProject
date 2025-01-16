@@ -1,0 +1,7 @@
+stages:
+  pull_data:
+    cmd: dvc pull
+    deps:
+      - data.dvc
+    outs:
+      - data
