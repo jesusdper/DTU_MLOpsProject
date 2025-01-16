@@ -1,4 +1,4 @@
-name: Pull Data from GCS with DVC
+name: Pull Data from Public GCS with DVC
 
 on:
   push:
@@ -15,73 +15,19 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Set up Python
+    # Install Python and dependencies
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
 
-    # Set up Google Cloud SDK
-    - name: Set up Google Cloud SDK
-      uses: google-github-actions/setup-gcloud@v1
-      with:
-        version: 'latest'
-        project_id: ${{ secrets.GCP_PROJECT }}
-        service_account_key: ${{ secrets.GOOGLE_CLOUD_KEY }}
-
-    - name: Check Service Account Key
-      run: |
-        echo "${{ secrets.GOOGLE_CLOUD_KEY }}" | base64 --decode > gcp-key.json
-        head -n 5 gcp-key.json
-
-    # Authenticate with Google Cloud (gsutil)
-    - name: Authenticate gsutil
-      run: |
-        echo "Setting up gsutil authentication..."
-        echo "${{ secrets.GOOGLE_CLOUD_KEY }}" | base64 --decode > gcp-key.json
-        export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
-        gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
-        gcloud config set pass_credentials_to_gsutil true
-
-    # Ensure gcsfs uses the correct credentials
-    - name: Install gcsfs
-      run: |
-        echo "Installing gcsfs..."
-        pip install gcsfs
-
-    # Ensure gcsfs uses the correct credentials
-    - name: Authenticate gcsfs
-      run: |
-          echo "Authenticating gcsfs with service account..."
-          export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
-          python -c "import gcsfs; fs = gcsfs.GCSFileSystem()"
-
-    # Test GCS bucket access (Verify if we can list files in the bucket)
-    - name: Verify GCS access
-      run: |
-        echo "Testing GCS bucket access..."
-        gsutil ls gs://${{ secrets.GCS_BUCKET_NAME }}/
-
-    # Install dependencies (including DVC for GCS)
-    - name: Install dependencies
+    - name: Install DVC
       run: |
         python -m pip install --upgrade pip
-        pip install dvc[gdrive,gcs] dvc-gs
+        pip install dvc[gcs]
 
-    # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable for DVC
-    - name: Set credentials for DVC
-      run: |
-        echo "Setting credentials for DVC..."
-        export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
-
-    # Pull data with DVC
+    # Pull data from the public bucket
     - name: Pull data with DVC
       run: |
-        echo "Pulling data with DVC..."
+        echo "Pulling data with DVC from public bucket..."
         dvc pull data/processed/
-
-    # Clean up sensitive files (Remove service account key after use)
-    - name: Clean up
-      run: |
-        echo "Cleaning up..."
-        rm -f gcp-key.json
