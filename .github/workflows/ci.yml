@@ -33,6 +33,7 @@ jobs:
       run: |
         echo "${{ secrets.GOOGLE_CLOUD_KEY }}" | base64 --decode > gcp-key.json
         head -n 5 gcp-key.json
+
     # Authenticate with Google Cloud (gsutil)
     - name: Authenticate gsutil
       run: |
@@ -48,7 +49,7 @@ jobs:
         echo "Installing gcsfs..."
         pip install gcsfs
 
-      # Ensure gcsfs uses the correct credentials
+    # Ensure gcsfs uses the correct credentials
     - name: Authenticate gcsfs
       run: |
           echo "Authenticating gcsfs with service account..."
