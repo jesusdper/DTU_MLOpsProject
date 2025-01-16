@@ -31,4 +31,4 @@ training:
   img_size: 640
   batch_size: 16
   experiment_name: "yolov8_voc"
-  output_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models"
+  output_dir: "../models"
