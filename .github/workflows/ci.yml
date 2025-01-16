@@ -48,7 +48,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install dvc[gdrive,gcs]
+        pip install dvc[gdrive,gcs] dvc-gs
 
     # Pull data with DVC
     - name: Pull data with DVC
