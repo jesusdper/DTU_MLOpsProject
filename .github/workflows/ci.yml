@@ -33,3 +33,6 @@ jobs:
         dvc pull data/processed/ 
 
     # Works
+    - name: Train the model
+      run: |
+        python src/object_detection/train_.py  # Modify with your training script
