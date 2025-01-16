@@ -130,7 +130,7 @@ def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size
 def load_data():
     raw_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\raw")
     processed_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed")
-    splits = {"train": 100, "val": 50, "test": 20}
+    splits = {"train": 600, "val": 100, "test": 50}
     download_voc_dataset(raw_dir)
     preprocess_data(raw_dir, processed_dir, splits)
 

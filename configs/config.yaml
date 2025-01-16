@@ -27,8 +27,12 @@ model:
   pretrained_weights: "yolov8n.pt"  # YOLOv8 nano model
 
 training:
-  epochs: 3
+  epochs: 1
   img_size: 640
   batch_size: 16
-  experiment_name: "yolov8_voc"
+  experiment_name: "yolov8_voc_test_v3"
   output_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models"
+
+upload:
+  model_registry_url: "http://localhost:8000"  # Use environment variable for the API key
+  api_key: "abcd1234efgh5678ijklmnopqrstuvwx "  # Use environment variable for the registry URL
