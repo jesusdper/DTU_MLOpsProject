@@ -1,12 +1,12 @@
 import os
-import torch
+import torch  # type: ignore
 from pathlib import Path
 import logging
 import yaml
-from omegaconf import DictConfig
-import hydra
-from ultralytics import YOLO
-from model import (
+from omegaconf import DictConfig  # type: ignore
+import hydra  # type: ignore
+from ultralytics import YOLO  # type: ignore
+from .model import (
     CustomDataset,
 )  # Assuming custom dataset function to read images and labels
 
