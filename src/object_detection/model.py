@@ -60,7 +60,7 @@ class CustomDataset(Dataset):
         return image, labels
 
 
-def create_yolo_model(model_path=None, num_classes=80):
+def create_yolo_model(model_path: Path = None, num_classes: int = 80):
     """
     Initializes the YOLO model.
 
@@ -73,7 +73,7 @@ def create_yolo_model(model_path=None, num_classes=80):
     """
     # Load YOLOv8 model
     model = YOLO(model_path or "yolov8n.pt")  # Load YOLO Nano model by default
-
+    
     # Print the model architecture to help identify the correct way to access the final layer
     # print(model)
 
