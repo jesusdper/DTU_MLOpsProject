@@ -21,6 +21,11 @@ jobs:
         run: |
           pip install -r requirements.txt
 
+      - name: Debug JSON Key
+        run: |
+            echo "${{ secrets.GOOGLE_CLOUD_KEY }}" > $HOME/gcloud-key.json
+            cat $HOME/gcloud-key.json
+
       - name: Set up Google Cloud credentials
         run: |
           echo "${{ secrets.GOOGLE_CLOUD_KEY }}" > ${HOME}/gcloudkey.json
