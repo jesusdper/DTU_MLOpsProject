@@ -32,7 +32,12 @@ jobs:
         echo "Pulling data with DVC from public bucket..."
         dvc pull data/processed/ 
 
-    # Works
+    # Install required Python packages for training
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt  # Make sure your dependencies are listed here
+
+      # Works
     - name: Train the model
       run: |
         python src/object_detection/train.py  # Modify with your training script
