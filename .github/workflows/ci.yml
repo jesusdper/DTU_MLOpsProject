@@ -27,13 +27,13 @@ jobs:
       with:
         version: 'latest'
         project_id: ${{ secrets.GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}
+        service_account_key: ${{ secrets.GOOGLE_CLOUD_KEY }}
 
     # Authenticate gsutil
     - name: Authenticate gsutil
       run: |
         echo "Setting up gsutil authentication..."
-        echo "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}" > gcp-key.json
+        echo "${{ secrets.GOOGLE_CLOUD_KEY }}" > gcp-key.json
         export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
         gcloud auth activate-service-account --key-file=$GOOGLE_APPLICATION_CREDENTIALS
         gcloud config set pass_credentials_to_gsutil true
