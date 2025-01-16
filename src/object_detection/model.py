@@ -1,9 +1,9 @@
-import torch
-from torch.utils.data import Dataset, DataLoader
-from ultralytics import YOLO  # Import YOLOv8
+import torch  # type: ignore
+from torch.utils.data import Dataset  # type: ignore
+from ultralytics import YOLO  # Import YOLOv8 # type: ignore
 import numpy as np
-import torch
-from torch.utils.data import Dataset
+import torch  # type: ignore
+from torch.utils.data import Dataset  # type: ignore
 from pathlib import Path
 from PIL import Image
 

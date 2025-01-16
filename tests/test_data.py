@@ -1,14 +1,12 @@
-import xml.etree.ElementTree as ET
 from pathlib import Path
 from src.object_detection.data import (
-    download_voc_dataset,
     convert_voc_to_yolo,
     preprocess_data,
 )
 import os
 import json
 from unittest.mock import patch, mock_open
-import pytest  # type:s ignore
+import pytest  # type: ignore
 from PIL import Image
 
 # def test_download_voc_dataset():
