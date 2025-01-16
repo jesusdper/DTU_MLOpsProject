@@ -32,7 +32,7 @@ jobs:
     - name: Check Service Account Key
       run: |
         echo "${{ secrets.GOOGLE_CLOUD_KEY }}" | base64 --decode > gcp-key.json
-        head -n 5 service-account-key.json
+        head -n 5 gcp-key.json
     # Authenticate with Google Cloud (gsutil)
     - name: Authenticate gsutil
       run: |
