@@ -30,4 +30,6 @@ jobs:
     - name: Pull data with DVC
       run: |
         echo "Pulling data with DVC from public bucket..."
-        dvc pull data/processed/
+        dvc pull data/processed/ 
+
+    # Works
