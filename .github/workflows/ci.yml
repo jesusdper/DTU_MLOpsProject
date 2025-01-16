@@ -63,6 +63,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install dvc[gdrive,gcs] dvc-gs
 
+    # Set the GOOGLE_APPLICATION_CREDENTIALS environment variable for DVC
+    - name: Set credentials for DVC
+      run: |
+        echo "Setting credentials for DVC..."
+        export GOOGLE_APPLICATION_CREDENTIALS=$PWD/gcp-key.json
+
     # Pull data with DVC
     - name: Pull data with DVC
       run: |
