@@ -1,10 +1,11 @@
-name: Pull Data from Public GCS with DVC
-
+name: DVC Workflow
 on:
-  push:
+  pull_request:
     branches:
-      - main
-  workflow_dispatch:
+    - main
+    paths:
+    - '**/*.dvc'
+    - '.dvc/**'
 
 jobs:
   pull-data:
@@ -30,7 +31,7 @@ jobs:
     - name: Pull data with DVC
       run: |
         echo "Pulling data with DVC from public bucket..."
-        dvc pull data/processed/ 
+        dvc pull data/processed/ --no-run-cache
 
     # Install required Python packages for training
     - name: Install dependencies
@@ -40,4 +41,4 @@ jobs:
       # Works
     - name: Train the model
       run: |
-        python src/object_detection/train.py  # Modify with your training script
+        python src/object_detection/dataset_statistics.py --datadir data/processed
