@@ -1,4 +1,4 @@
-name: DVC Workflow
+name: DVC Workflow  # Fix it to work with the merges
 on:
   push:
     branches:
