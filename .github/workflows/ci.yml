@@ -1,12 +1,12 @@
 name: DVC Workflow
 on:
-  pull_request:
+  push:
     branches:
     - main
     paths:
     - '**/*.dvc'
     - '.dvc/**'
-
+    - 'data/**'
 jobs:
   pull-data:
     runs-on: ubuntu-latest
