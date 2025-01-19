@@ -1,5 +1,6 @@
 data:
-  processed_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed"
+  #processed_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed"
+  processed_dir: "data/processed"
   num_classes: 20
   class_names:
     - aeroplane
@@ -31,7 +32,8 @@ training:
   img_size: 640
   batch_size: 16
   experiment_name: "yolov8_voc_test_wandb"
-  output_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models"
+  #output_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models"
+  output_dir: "models"
 
 upload:
   model_registry_url: "http://localhost:8000"  # Use environment variable for the API key
