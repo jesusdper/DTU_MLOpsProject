@@ -36,7 +36,7 @@ def put_in_eval_mode(trainer):
             module.eval()
             module.track_running_stats = False
 
-@hydra.main(config_path=r"/home/jdiaz/DTU_MLOpsProject/src/object_detection/configs", config_name="config.yaml")
+@hydra.main(config_path=r"/home/jdiaz/DTU_MLOpsProject/configs", config_name="config.yaml")
 def main(cfg: DictConfig):
     """
     Main function to train YOLO model using Ultralytics and Hydra with W&B tracking.
