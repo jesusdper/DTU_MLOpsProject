@@ -13,7 +13,7 @@ import wandb  # For W&B integration
 import shutil
 import torch.profiler
 
-wandb.login(key="b97463597a9b7425acac3f6390c6ec7515ba2585")
+wandb.login(key="b97463597a9b7425acac3f6390c6ec7515ba2585",dir="/home/jdiaz/DTU_MLOpsProject")
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
