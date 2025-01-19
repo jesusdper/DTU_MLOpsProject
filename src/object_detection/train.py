@@ -7,7 +7,7 @@ from omegaconf import DictConfig
 import hydra
 from ultralytics import YOLO
 from model import CustomDataset, create_yolo_model
-from model_registry_helper import upload_model
+#from model_registry_helper import upload_model
 from torch.utils.tensorboard import SummaryWriter
 import wandb  # For W&B integration
 import shutil
