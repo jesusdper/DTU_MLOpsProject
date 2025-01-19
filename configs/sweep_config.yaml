@@ -1,0 +1,17 @@
+program: train.py
+name: sweepdemo
+project: YOLO_Training  # Ensure this is set to the correct project name
+entity: yolo_v8_voc_sweep_test  # change this
+method: random  # Random search, you could also use grid search
+metric:
+  name: val/box_loss  # The metric we are trying to optimize
+  goal: minimize  # Minimize box_loss
+parameters:
+  learning_rate:
+    min: 0.0001
+    max: 0.0002
+  batch_size:
+    values: [16, 32]
+  epochs:
+    value: 5
+run_cap: 2
