@@ -1,7 +1,6 @@
-program: train.py
+program: src/object_detection/train.py
 name: sweepdemo
-project: YOLO_Training  # Ensure this is set to the correct project name
-entity: yolo_v8_voc_sweep_test  # change this
+project: DTU_MLOpsProject  # Ensure this is set to the correct project name
 method: random  # Random search, you could also use grid search
 metric:
   name: val/box_loss  # The metric we are trying to optimize
@@ -15,3 +14,8 @@ parameters:
   epochs:
     value: 5
 run_cap: 2
+command:
+  - ${env}
+  - venv/Scripts/python.exe # Replace with the path to your virtual environment's Python
+  - ${program}
+  - ${args}
