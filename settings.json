@@ -1,0 +1,30 @@
+{
+    // set flake8 as the linter
+    "python.linting.flake8Enabled": true,
+  
+    // Disable other linters if not needed
+    "python.linting.pylintEnabled": false,
+  
+    // Automatically run linting on file save
+    "python.linting.lintOnSave": true,
+  
+    // Set path to  flake8 exe
+    "python.linting.flake8Path": "flake8",
+  
+    // set black as formatter
+    "python.formatting.provider": "black",
+    "editor.formatOnSave": true,
+  
+    // excluded files
+    "files.exclude": {
+      "**/__pycache__": true,
+      "**/*.pyc": true
+    },
+  
+    // Customize Flake8 arguments 
+    "python.linting.flake8Args": [
+      "--max-line-length=88",
+      "--ignore=E203,E266,E501,W503"
+    ]
+  }
+  
