@@ -12,7 +12,7 @@ data_dir = Path(
     "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed/test/images"
 )  # Assuming images are inside 'images' subfolder
 output_dir = Path("C:/Users/jdiaz/Desktop/DTU_MLOpsProject/results/inference")
-model_dir = Path("C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models/yolov8_voc2")
+model_dir = Path("C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models/yolov8_voc_test_new2")
 model_path = model_dir / "weights/best.pt"
 
 # Ensure output directory exists

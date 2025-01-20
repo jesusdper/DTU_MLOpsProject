@@ -1,0 +1,42 @@
+name: DVC Workflow  # Fix it to work with the merges
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  pull-data:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Install Python and dependencies
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install DVC
+      run: |
+        python -m pip install --upgrade pip
+        pip install dvc[gcs] dvc_gs
+
+    # Pull data from the public bucket
+    - name: Pull data with DVC
+      run: |
+        echo "Pulling data with DVC from public bucket..."
+        dvc pull data/processed/ --no-run-cache
+
+    # Install required Python packages for training
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt  # Make sure your dependencies are listed here
+
+      # Works
+    # Train
+    - name: Train the model
+      run: |
+        python src/object_detection/dataset_statistics.py --datadir data/processed

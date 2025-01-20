@@ -60,24 +60,11 @@ class CustomDataset(Dataset):
         return image, labels
 
 
-def create_yolo_model(model_path: Path = None, num_classes: int = 80):
+
+def create_yolo_model(pretrained_weights, cfg):
     """
-    Initializes the YOLO model.
-
-    Args:
-        model_path (str): Path to a pre-trained YOLO model. If None, it will load the default model.
-        num_classes (int): Number of classes in your dataset.
-
-    Returns:
-        model: YOLO model instance.
+    Initialize the YOLO model.
     """
-    # Load YOLOv8 model
-    model = YOLO(model_path or "yolov8n.pt")  # Load YOLO Nano model by default
-    
-    # Print the model architecture to help identify the correct way to access the final layer
-    # print(model)
-
-    # Update the number of classes in the final detection layer (the last layer)
-    # model.model[-1].nc = num_classes  # Correct access to final layer
-
+    model = YOLO(pretrained_weights)
+    model.cfg = cfg  # Attach configuration for easier access
     return model
