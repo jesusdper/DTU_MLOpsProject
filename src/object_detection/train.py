@@ -1,5 +1,5 @@
 import os
-import torch
+import torch  # type: ignore
 from pathlib import Path
 import logging
 import yaml
@@ -36,11 +36,17 @@ def put_in_eval_mode(trainer):
             module.eval()
             module.track_running_stats = False
 
-@hydra.main(config_path=r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\configs", config_name="config.yaml")
+@hydra.main(
+    version_base=None,
+    config_path=r"../../configs",
+    config_name="config.yaml",
+)
 def main(cfg: DictConfig):
     """
     Main function to train YOLO model using Ultralytics and Hydra with W&B tracking.
     """
+
+
     # Create a log subfolder for the model
     log_dir = Path(cfg.training.output_dir) / "logs" / cfg.training.experiment_name
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -55,6 +61,7 @@ def main(cfg: DictConfig):
         config=dict(cfg),
         dir=str(log_dir),
         resume="allow",
+
     )
 
     try:
