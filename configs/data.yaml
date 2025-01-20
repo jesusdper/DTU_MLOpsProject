@@ -20,5 +20,6 @@ names:
 - tvmonitor
 - diningtable
 nc: 20
-train: C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed
-val: C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed
+train: ../data/processed
+val: ../data/processed
+

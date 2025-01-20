@@ -128,8 +128,8 @@ def preprocess_data(raw_dir: Path, processed_dir: Path, splits: dict, image_size
     logger.info(f"Processed data saved to {processed_dir}")
 
 def load_data():
-    raw_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\raw")
-    processed_dir = Path(r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\data\processed")
+    raw_dir = Path(__file__).resolve().parents[2] / "data" / "raw"
+    processed_dir = Path(__file__).resolve().parents[2] / "data" / "processed"
     splits = {"train": 600, "val": 100, "test": 50}
     download_voc_dataset(raw_dir)
     preprocess_data(raw_dir, processed_dir, splits)

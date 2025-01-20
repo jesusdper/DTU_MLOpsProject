@@ -7,11 +7,14 @@ from omegaconf import DictConfig
 import hydra
 from ultralytics import YOLO
 from model import CustomDataset, create_yolo_model
-#from model_registry_helper import upload_model
 from torch.utils.tensorboard import SummaryWriter
 import wandb  # For W&B integration
 import shutil
 import torch.profiler
+
+# Ensure the W&B log directory exists
+log_dir = Path("/models/logs/yolov8_voc_test_wandb/wandb/run-20250120_160320-omms6rqf/logs")
+log_dir.mkdir(parents=True, exist_ok=True)
 
 wandb.login(key="b97463597a9b7425acac3f6390c6ec7515ba2585")
 
@@ -36,7 +39,7 @@ def put_in_eval_mode(trainer):
             module.eval()
             module.track_running_stats = False
 
-@hydra.main(config_path=r"C:\Users\jdiaz\Desktop\DTU_MLOpsProject\configs", config_name="config.yaml")
+@hydra.main(config_path="../../configs", config_name="config.yaml")
 def main(cfg: DictConfig):
     """
     Main function to train YOLO model using Ultralytics and Hydra with W&B tracking.
@@ -45,17 +48,22 @@ def main(cfg: DictConfig):
     log_dir = Path(cfg.training.output_dir) / "logs" / cfg.training.experiment_name
     log_dir.mkdir(parents=True, exist_ok=True)
 
+    # Ensure the W&B log directory exists
+    wandb_log_dir = log_dir / "wandb" / f"run-{wandb.util.generate_id()}"
+    wandb_log_dir.mkdir(parents=True, exist_ok=True)
+
     # Path for the trace.json file
     trace_file_path = log_dir / "train_trace.pt.trace.json"
 
     # Initialize W&B
-    wandb.init(
-        project=cfg.wandb.project_name,
-        name=cfg.training.experiment_name,
-        config=dict(cfg),
-        dir=str(log_dir),
-        resume="allow",
-    )
+    # Initialize W&B
+# wandb.init(
+#     project=cfg.wandb.project_name,
+#     name=cfg.training.experiment_name,
+#     config=dict(cfg),
+#     dir=str(log_dir),
+#     resume="allow",
+# )
 
     try:
         # Start profiler
