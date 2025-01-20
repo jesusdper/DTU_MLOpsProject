@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 @hydra.main(
+    version_base=None,
     config_path=r"../../configs",
     config_name="config.yaml",
 )

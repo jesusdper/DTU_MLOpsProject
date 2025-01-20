@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from ultralytics import YOLO
+from ultralytics import YOLO  # type: ignore
 import logging
 
 # Set up logging

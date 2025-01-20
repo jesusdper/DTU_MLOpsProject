@@ -1,5 +1,5 @@
 data:
-  processed_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed"
+  processed_dir: "../../data/processed"
   num_classes: 20
   class_names:
     - aeroplane
@@ -27,8 +27,12 @@ model:
   pretrained_weights: "yolov8n.pt"  # YOLOv8 nano model
 
 training:
-  epochs: 3
+  epochs: 30
   img_size: 640
   batch_size: 16
   experiment_name: "yolov8_voc"
   output_dir: "../models"
+
+hydra:
+  run:
+    dir: .
