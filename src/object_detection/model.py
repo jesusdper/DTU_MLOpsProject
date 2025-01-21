@@ -2,20 +2,37 @@ import torch
 from torch.utils.data import Dataset, DataLoader
 from ultralytics import YOLO  # Import YOLOv8
 import numpy as np
-import torch
-from torch.utils.data import Dataset
 from pathlib import Path
 from PIL import Image
+from typing import Tuple
 
 
 class CustomDataset(Dataset):
-    def __init__(self, images_dir: Path, labels_dir: Path):
+
+
+        
+    def __init__(self, images_dir: Path, labels_dir: Path) -> None:
         """
         Custom Dataset for YOLO using images and YOLO annotations (text files).
 
-        Args:
-            images_dir (Path): Directory containing images.
-            labels_dir (Path): Directory containing YOLO annotations (text files).
+        Attributes:
+            image_files (List[Path]): List of image file paths.
+            label_files (Dict[str, Path]): Dictionary mapping image file stems to label file paths.
+
+        Methods:
+            __len__() -> int:
+                Returns the number of images in the dataset.
+
+            __getitem__(idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
+                Returns the image and corresponding labels at the specified index.
+
+                    idx (int): Index of the image and label to retrieve.
+
+                Raises:
+                    FileNotFoundError: If the label file corresponding to the image is not found.
+
+                Returns:
+                    Tuple[torch.Tensor, torch.Tensor]: A tuple containing the image tensor and the labels tensor.
         """
         self.images_dir = images_dir
         self.labels_dir = labels_dir
@@ -28,10 +45,10 @@ class CustomDataset(Dataset):
         print(f"Sample image: {self.image_files[0] if self.image_files else 'None'}")
         print(f"Sample label: {list(self.label_files.keys())[0] if self.label_files else 'None'}")
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.image_files)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
         image_file = self.image_files[idx]
         label_file = self.label_files.get(image_file.stem)
 
@@ -41,7 +58,9 @@ class CustomDataset(Dataset):
         # Load image
         image = Image.open(image_file).convert("RGB")
         image = image.resize((640, 640))  # Resize to match YOLO input size (adjust as necessary)
-        image = torch.tensor(np.array(image), dtype=torch.float32).permute(2, 0, 1) / 255.0  # Normalize and convert to tensor
+        image = (
+            torch.tensor(np.array(image), dtype=torch.float32).permute(2, 0, 1) / 255.0
+        )  # Normalize and convert to tensor
 
         # Load labels (YOLO format: class_id, x_center, y_center, width, height)
         with open(label_file, "r") as f:
@@ -52,8 +71,7 @@ class CustomDataset(Dataset):
         return image, labels
 
 
-
-def create_yolo_model(pretrained_weights, cfg):
+def create_yolo_model(pretrained_weights: str, cfg: dict) -> YOLO:
     """
     Initialize the YOLO model.
     """
