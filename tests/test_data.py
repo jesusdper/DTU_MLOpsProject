@@ -15,7 +15,6 @@ from xml.etree.ElementTree import Element, SubElement, ElementTree
 import tarfile
 import logging
 
-# Test download_voc_dataset
 def test_download_voc_dataset(mocker, tmp_path):
     """
     Test downloading the VOC dataset is correctly working.
@@ -23,12 +22,12 @@ def test_download_voc_dataset(mocker, tmp_path):
     mock_urlretrieve = mocker.patch("urllib.request.urlretrieve")
     mock_tarfile = mocker.patch("tarfile.open")
 
-    # Case 1: Dataset not downloaded
+    # Dataset has not been downloaded yet
     download_voc_dataset(tmp_path)
     mock_urlretrieve.assert_called_once()
     mock_tarfile.assert_called_once()
 
-    # Case 2: Dataset already downloaded
+    # Dataset already downloaded
     mock_urlretrieve.reset_mock()
     mock_tarfile.reset_mock()
     (tmp_path / "VOC2012.tar").touch()
@@ -191,3 +190,10 @@ def test_preprocess_data_missing_files(tmp_raw, tmp_processed):
 
         assert len(list(split_images_dir.glob("*.jpg"))) <= count
         assert len(list(split_labels_dir.glob("*.txt"))) <= count
+
+def test_load_data():
+    """
+    Test the load_data function is working correctly.
+    """
+    data.load_data()
+    

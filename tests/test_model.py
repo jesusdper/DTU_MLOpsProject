@@ -1,30 +1,34 @@
 from src.object_detection.model import create_yolo_model
 from ultralytics import YOLO  # type: ignore
-from pathlib import Path
 import pytest # type: ignore
-import os
-import shutil
-from unittest.mock import patch
+
 
 @pytest.fixture
-def tmp_model(tmp_path):
+def mock_pretrained_weights(tmp_path):
     """
-    Create a temporary directory for the model.
+    Fixture to mock pretrained weights
     """
-    model_dir = tmp_path
-    os.makedirs(model_dir, exist_ok=True)
-
-    return model_dir
-
-
-@patch("src.object_detection.model.create_yolo_model")
-def test_create_yolo_model(mock_download, tmp_model):
-    """
-    Test the model is correctly created.
-    """
-    mock_download.side_effect = lambda destination: destination.write_text("mock model content")
-
-    model = create_yolo_model(model_path=tmp_model, num_classes=80)
-
-    assert isinstance(model, YOLO)
+    weights_path = tmp_path / "yolov8n.pt"
     
+    return weights_path
+
+@pytest.fixture
+def mock_config_file(tmp_path):
+    """
+    Fixture to mock a config file
+    """
+    mock_config = tmp_path / "mock_config.yaml"
+
+    return mock_config
+
+
+def test_create_yolo_model(mock_pretrained_weights, mock_config_file):
+    """
+    Test the YOLO model is created correctly with mock config.
+    """
+    config = mock_config_file 
+
+    model = create_yolo_model(pretrained_weights=mock_pretrained_weights, cfg=config)
+    
+    assert model is not None 
+    assert isinstance(model, YOLO) 
