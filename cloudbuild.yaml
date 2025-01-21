@@ -8,7 +8,7 @@ steps:
     '-t',
     'europe-west1-docker.pkg.dev/jjproject-448414/mlops/$_IMAGE_NAME',
     '-f',
-    'Dockerfile'
+    'dockerfiles/api.Dockerfile'
   ]
 - name: 'gcr.io/cloud-builders/docker'
   id: 'Push container image'
