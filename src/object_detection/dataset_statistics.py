@@ -1,6 +1,5 @@
-import os
 from pathlib import Path
-import typer
+import typer  # type: ignore
 import matplotlib.pyplot as plt
 
 
@@ -8,7 +7,7 @@ def count_files_in_dir(directory: Path) -> int:
     """Count the number of files in a directory."""
     return len([f for f in directory.iterdir() if f.is_file()])
 
-def dataset_statistics(datadir: str = "data/processed") -> None:
+def dataset_statistics(datadir: str = "../../data/processed") -> None:
     """Compute dataset statistics for the PASCAL VOC dataset."""
     data_path = Path(datadir)
     splits = ["train", "val", "test"]
