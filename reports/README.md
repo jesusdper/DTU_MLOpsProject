@@ -214,13 +214,13 @@ Specifically, we used its model training functionality to fine-tune the model on
 > *application but also ... .*
 >
 > Answer:
-> *In total, we have implemented four tests. These are divided into several files, depending on what they are testing.*
-> *- test_data.py: this file contains two tests. The first of them checks whether the data was correctly converted to XML*
-> *for a correct annotation format. The other test checks whether the processed data to introduce into the YOLO model is*
-> *correctly created and saved in the corresponding directory. This dile includes a couple of fixtures to aid in the testing*
-> *process.*
-> *- test_model.py: which includes one fixture and one test, in order to check whether the model is correctly created.*
-> *- test_train.py: includes one test that checks the functioning of the main function of the training file of the model.*
+> *In total, we have implemented many tests. These are divided into several files, according to the pytest standard,*
+> *and can be found in the root/tests directory. We have been centered mainly in testing  data, model and train files.*
+> *We have found this important, since data, model and training process are the bases for the project. If these modules*
+> *were to have an incorrect functioning, it would deeply affect the functioning of the project in general.*
+> *Therefore, there are other modules that might not be tested as thoroughly, since their importance has been deemed*
+> *smaller in the scope of the project. Despite of this, some key functions are being tested in these other modules to*
+> *ensure that important funcionalities are being met.*
 
 
 ### Question 8
@@ -235,9 +235,9 @@ Specifically, we used its model training functionality to fine-tune the model on
 > *code and even if we were then...*
 >
 > Answer:
-> *The coverage
-
---- question 8 fill here ---
+> *The total coverage of the project at the moment is 45%. We are highly aware that this coverage is not the highest by far*
+> *but, as we have mentioned in the question above, we have pripritized other parts of the project against unit testing of*
+> *modules of functions that might not result as crucial for the overall aspect of the project*.
 
 ### Question 9
 
