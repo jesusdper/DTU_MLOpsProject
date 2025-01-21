@@ -214,8 +214,14 @@ Specifically, we used its model training functionality to fine-tune the model on
 > *application but also ... .*
 >
 > Answer:
+> *In total, we have implemented four tests. These are divided into several files, depending on what they are testing.*
+> *- test_data.py: this file contains two tests. The first of them checks whether the data was correctly converted to XML*
+> *for a correct annotation format. The other test checks whether the processed data to introduce into the YOLO model is*
+> *correctly created and saved in the corresponding directory. This dile includes a couple of fixtures to aid in the testing*
+> *process.*
+> *- test_model.py: which includes one fixture and one test, in order to check whether the model is correctly created.*
+> *- test_train.py: includes one test that checks the functioning of the main function of the training file of the model.*
 
---- question 7 fill here ---
 
 ### Question 8
 
@@ -229,6 +235,7 @@ Specifically, we used its model training functionality to fine-tune the model on
 > *code and even if we were then...*
 >
 > Answer:
+> *The coverage
 
 --- question 8 fill here ---
 

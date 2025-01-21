@@ -12,8 +12,9 @@ from typing import List
 import json
 
 # Setup logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+
 
 # VOC 2012 class labels (20 classes)
 VOC_CLASSES = [

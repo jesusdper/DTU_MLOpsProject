@@ -1,5 +1,5 @@
 import unittest
-from src.object_detection.scripts.model_registry_helper import upload_model, get_model_status
+from src.object_detection.model_registry_helper import upload_model, get_model_status
 
 
 class TestModelRegistryHelper(unittest.TestCase):
