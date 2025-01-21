@@ -15,6 +15,7 @@ from xml.etree.ElementTree import Element, SubElement, ElementTree
 import tarfile
 import logging
 
+
 def test_download_voc_dataset(mocker, tmp_path):
     """
     Test downloading the VOC dataset is correctly working.
@@ -42,7 +43,10 @@ def test_download_voc_logs(caplog, tmp_path):
     """
     with caplog.at_level(logging.INFO):
         data.download_voc_dataset(tmp_path)
-        assert "Downloading PASCAL VOC 2012 dataset..." in caplog.text or "PASCAL VOC 2012 dataset already downloaded." in caplog.text
+        assert (
+            "Downloading PASCAL VOC 2012 dataset..." in caplog.text
+            or "PASCAL VOC 2012 dataset already downloaded." in caplog.text
+        )
         assert "Extracting dataset..." in caplog.text
         assert "Dataset extracted." in caplog.text
 
@@ -51,7 +55,10 @@ def test_download_voc_extract(tmp_path):
     """
     Test the dataset is correctly extracted.
     """
-    with patch("urllib.request.urlretrieve") as mock_urlretrieve, patch("tarfile.open") as mock_tar:
+    with (
+        patch("urllib.request.urlretrieve") as mock_urlretrieve,
+        patch("tarfile.open") as mock_tar,
+    ):
         mock_tar.return_value.__enter__.return_value = MagicMock(spec=tarfile.TarFile)
         download_voc_dataset(tmp_path)
         mock_urlretrieve.assert_called_once()
@@ -72,7 +79,10 @@ def test_convert_voc_to_yolo():
         </object>
     </annotation>
     """
-    with patch("builtins.open", mock_open(read_data=xml_content)), patch("pathlib.Path.exists", return_value=True):
+    with (
+        patch("builtins.open", mock_open(read_data=xml_content)),
+        patch("pathlib.Path.exists", return_value=True),
+    ):
         result = convert_voc_to_yolo(Path("mocked_file.xml"), 400, 400)
 
     class_id, x_center, y_center, width, height = result[0]
@@ -92,7 +102,12 @@ def test_convert_voc_to_yolo_valid_data(tmp_path):
     obj = SubElement(annotation, "object")
     SubElement(obj, "name").text = "dog"
     bndbox = SubElement(obj, "bndbox")
-    for tag, value in [("xmin", "50"), ("ymin", "50"), ("xmax", "150"), ("ymax", "200")]:
+    for tag, value in [
+        ("xmin", "50"),
+        ("ymin", "50"),
+        ("xmax", "150"),
+        ("ymax", "200"),
+    ]:
         SubElement(bndbox, tag).text = value
 
     xml_path = tmp_path / "sample.xml"
@@ -108,7 +123,7 @@ def test_convert_voc_to_yolo_valid_data(tmp_path):
             else:
                 assert res_val == exp_val
 
-    
+
 @pytest.fixture
 def tmp_raw(tmp_path):
     """
@@ -122,7 +137,9 @@ def tmp_raw(tmp_path):
     os.makedirs(annotations_dir, exist_ok=True)
 
     for i in range(170):
-        img = Image.new("RGB", (256, 256), color=(i % 256, (i * 2) % 256, (i * 3) % 256))
+        img = Image.new(
+            "RGB", (256, 256), color=(i % 256, (i * 2) % 256, (i * 3) % 256)
+        )
         img.save(images_dir / f"image{i}.jpg")
 
         annotation_content = f"""
@@ -191,9 +208,9 @@ def test_preprocess_data_missing_files(tmp_raw, tmp_processed):
         assert len(list(split_images_dir.glob("*.jpg"))) <= count
         assert len(list(split_labels_dir.glob("*.txt"))) <= count
 
+
 def test_load_data():
     """
     Test the load_data function is working correctly.
     """
     data.load_data()
-    
