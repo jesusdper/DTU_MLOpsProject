@@ -28,6 +28,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8
 
-      # Step 4: Run flake8
+      # Step 4: Run flake8 and save the report
       - name: Run flake8
-        run: flake8 src/ --exit-zero
+        run: flake8 src/ --output-file=flake8-report.txt || true
+
+      # Step 5: Upload flake8 report as an artifact
+      - name: Upload flake8 report
+        uses: actions/upload-artifact@v3
+        with:
+          name: flake8-report
+          path: flake8-report.txt
