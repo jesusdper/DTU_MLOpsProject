@@ -2,12 +2,16 @@
 # Maximum allowed line length
 max-line-length = 88
 
-# Ignore specific error codes
-ignore = 
-    E203,  # Whitespace before ':' (conflicts with Black)
-    E266,  # Too many leading '#' for block comment
-    E501,  # Line too long (handled by max-line-length)
-    W503   # Line break before binary operator (conflicts with Black)
+# Ignore specific error codes:
+# - E203: Whitespace before ':' (conflicts with Black)
+# - E266: Too many leading '#' for block comment
+# - E501: Line too long (handled by max-line-length)
+# - W503: Line break before binary operator (conflicts with Black)
+ignore =
+    E203,
+    E266,
+    E501,
+    W503
 
 # Exclude certain directories and files from linting
 exclude =
