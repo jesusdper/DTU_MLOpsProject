@@ -167,10 +167,11 @@ def preprocess_data(
     logger.info(f"Processed data saved to {processed_dir}")
 
 
-def load_data() -> None:
-    raw_dir = Path("./data/raw")
-    processed_dir = Path("./data/processed")
-    splits = {"train": 100, "val": 50, "test": 20}
+def load_data():
+    raw_dir = Path(__file__).resolve().parents[2] / "data" / "raw"
+    processed_dir = Path(__file__).resolve().parents[2] / "data" / "processed"
+    splits = {"train": 600, "val": 100, "test": 50}
+
     download_voc_dataset(raw_dir)
     preprocess_data(raw_dir, processed_dir, splits)
 

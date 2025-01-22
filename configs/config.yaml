@@ -32,7 +32,7 @@ training:
   batch_size: 16
   experiment_name: "yolov8_voc_test_wandb"
   #output_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models"
-  output_dir: "models"
+  output_dir: "../models"
 
 upload:
   model_registry_url: "http://localhost:8000"  # Use environment variable for the API key
