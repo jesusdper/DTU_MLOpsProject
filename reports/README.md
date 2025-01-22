@@ -143,9 +143,13 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
-We used the third-party framework YOLOv8 by Ultralytics in our project, which was not covered in the course. YOLOv8 provided state-of-the-art tools for object detection and was instrumental in completing our pipeline. We leveraged its pre-trained models and capabilities for fine-tuning on custom datasets, which streamlined the process of training and evaluation.
+ADD SOMETHING IF IT HAS BEEN USED 
 
-Specifically, we used its model training functionality to fine-tune the model on the PASCAL VOC dataset and its inference tools to quickly test and validate the model on new images.
+We used the third-party framework YOLOv8 by Ultralytics in our project, which was not covered in the course. YOLOv8 offers state-of-the-art tools for object detection, making it a highly versatile choice for building a robust and efficient pipeline. We leveraged its pre-trained models and capabilities for fine-tuning on custom datasets, which streamlined the process of training and evaluation.
+
+Specifically, we used it on the PASCAL VOC dataset. YOLOv8's streamlined inference tools enabled us to quickly test the model's performance on new images and validate its predictions effectively.
+
+The framework's built-in features for visualizing predictions and evaluating performance metrics further simplified the process of debugging and optimization. Its flexibility allowed us to experiment with different configurations, making it an essential component of our machine learning pipeline. By using YOLOv8, we were able to focus more on fine-tuning and evaluation, ensuring the final model met our performance expectations.
 
 ## Coding environment
 
@@ -196,7 +200,8 @@ Specifically, we used its model training functionality to fine-tune the model on
 >
 > Answer:
 
---- question 6 fill here ---
+We implemented flake8 for linting to ensure code quality and adherence to Python's best practices. Linting helps identify potential issues such as syntax errors, unused imports, and deviations from the PEP 8 style guide, improving code readability and maintainability. For formatting, we paired linting with black, which automatically reformats code to meet consistent style standards.
+These practices are crucial in larger projects because they establish a shared understanding across teams, minimize technical debt, and reduce debugging time. For example, typing can prevent mismatched function arguments early, and consistent documentation ensures that APIs or modules can be used without in-depth code exploration. Overall, these strategies foster scalability, collaboration, and long-term maintainability.
 
 ## Version control
 
@@ -214,13 +219,7 @@ Specifically, we used its model training functionality to fine-tune the model on
 > *application but also ... .*
 >
 > Answer:
-> *In total, we have implemented many tests. These are divided into several files, according to the pytest standard,*
-> *and can be found in the root/tests directory. We have been centered mainly in testing  data, model and train files.*
-> *We have found this important, since data, model and training process are the bases for the project. If these modules*
-> *were to have an incorrect functioning, it would deeply affect the functioning of the project in general.*
-> *Therefore, there are other modules that might not be tested as thoroughly, since their importance has been deemed*
-> *smaller in the scope of the project. Despite of this, some key functions are being tested in these other modules to*
-> *ensure that important funcionalities are being met.*
+In total, we have implemented many tests. These are divided into several files, according to the pytest standard, and can be found in the root/tests directory. We have been centered mainly in testing  data, model and train files. We have found this important, since data, model and training process are the bases for the project. If these modules were to have an incorrect functioning, it would deeply affect the functioning of the project in general. Therefore, there are other modules that might not be tested as thoroughly, since their importance has been deemed smaller in the scope of the project. Despite of this, some key functions are being tested in these other modules to ensure that important funcionalities are being met.
 
 
 ### Question 8
@@ -304,7 +303,8 @@ As the project progressed, we decided to increase the dataset size by incorporat
 >
 > Answer:
 
-We used Hydra to configure experiments, which allowed for a modular and hierarchical configuration setup. Each experiment was defined using configuration files, with separate YAML files for hyperparameters, dataset paths, and model settings.
+We configured experiments using Hydra and YAML configuration files. This approach allows for easy experimentation and hyperparameter tuning. For example, we define experiment parameters like learning rate, batch size, and output directory in a YAML file, then run the experiment using a command like: python train.py --config-name=config.yaml. This way, Hydra loads the configuration file, and we can easily modify parameters for different experiments without changing the code.
+
 ### Question 13
 
 > **Reproducibility of experiments are important. Related to the last question, how did you secure that no information**
@@ -318,7 +318,11 @@ We used Hydra to configure experiments, which allowed for a modular and hierarch
 >
 > Answer:
 
---- question 13 fill here ---
+We ensured the reproducibility of our experiments by using Hydra and YAML configuration files, which capture all experiment parameters. Each time an experiment is run, the configuration file is loaded to retrieve hyperparameters such as learning rate, batch size, and dataset paths. This makes it easy to track and reproduce each experiment exactly as it was run.
+
+Additionally, we logged metrics using Weights & Biases (W&B) to track model performance and configuration parameters during training. We also utilized a logging mechanism to capture key events, errors, and profiler traces. This ensures that all relevant information, such as training duration and model performance, is stored for future reference.
+
+To reproduce an experiment, one would only need to re-run the train.py script with the same configuration file. Since we store all necessary parameters within the configuration, including dataset paths and model hyperparameters, the experiment can be reproduced exactly
 
 ### Question 14
 
@@ -478,11 +482,19 @@ To enhance the API, we added functionality for visualizing predictions by overla
 >
 > Answer:
 
-We deployed the API locally. To invoke the deployed service, a user would send a POST request with an image file to the endpoint, as shown below:
+We successfully deployed the API locally using FastAPI, which enabled us to serve the YOLOv8 object detection model. The application provides multiple endpoints, including /upload for uploading new model files, /models for listing available models, and /predict/{model_name} for making predictions using a specified model.
 
-curl -X POST -F "image=@example.jpg" <web_url>/predict
+To invoke the service, a user can send a POST request with an image file to the /predict/{model_name} endpoint, specifying the model name in the URL. For example:
 
-This returned predictions as a JSON object with bounding box coordinates, class labels, and confidence scores.
+curl -X POST -F "file=@example.jpg" http://localhost:8000/predict/yolov8n
+
+This request processes the image using the selected model and returns predictions in a JSON format. The response includes bounding box coordinates, confidence scores, class IDs, and class names for the detected objects.
+
+Additionally, we implemented a /metrics endpoint to expose Prometheus-compatible metrics, which allow us to monitor the API's performance, including the total number of requests, predictions made, and inference durations.
+
+While deployed locally, this setup demonstrates the functionality of the API and can be extended for cloud deployment using containerization or platforms like AWS, GCP, or Azure.
+
+
 ### Question 25
 
 > **Did you perform any unit testing and load testing of your API? If yes, explain how you did it and what results for**
@@ -510,8 +522,8 @@ We performed unit testing using pytest to verify API endpoints and ensure correc
 >
 > Answer:
 
---- question 26 fill here ---
-
+We implemented monitoring for our deployed model using Prometheus with prometheus-fastapi-instrumentator and custom metrics for inference operations. The system captures the total inference requests and predictions made, the inference duration to measure performance, and other system metrics like request counts, latencies, and error rates for the FastAPI endpoints.
+These metrics are exposed at /metrics, enabling integration with visualization tools, although we have not implemented them. Monitoring helps track system behavior, detect anomalies, and measure data drift or performance degradation. For example, inference duration can identify inefficiencies, while tracking predictions ensures model stability. These insights are crucial for maintaining a reliable and scalable application in production.
 ## Overall discussion of project
 
 > In the following section we would like you to think about the general structure of your project.
