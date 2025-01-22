@@ -8,55 +8,42 @@ import hydra
 from ultralytics import YOLO
 from model import CustomDataset, create_yolo_model
 from torch.utils.tensorboard import SummaryWriter
-import wandb  # For W&B integration
+import wandb
 import shutil
 import torch.profiler
+import argparse
 
 # Ensure the W&B log directory exists
-log_dir = Path("/models/logs/yolov8_voc_test_wandb/wandb/run-20250120_160320-omms6rqf/logs")
+log_dir = Path.home() / "models/logs/yolov8_voc_test_wandb/wandb/run-20250120_160320-omms6rqf/logs"
 log_dir.mkdir(parents=True, exist_ok=True)
 
-wandb.login(key="b97463597a9b7425acac3f6390c6ec7515ba2585")
+wandb.login(key="61ddce14f1719a9a246485c5859a9bedb6c44a51")
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Define the callback for frozen layers
-# Callback to log metrics to W&B
-def wandb_callback(metrics):
-    """Log metrics to W&B."""
-    wandb.log(metrics)
+# Download yolov8n.pt model
+model_dir = Path.home() / "models"
+model_dir.mkdir(parents=True, exist_ok=True)
+model_path = model_dir / "yolov8n.pt"
+if not model_path.exists():
+    torch.hub.download_url_to_file('https://github.com/ultralytics/assets/releases/download/v0.0.0/yolov8n.pt', model_path)
+    logger.info(f"Downloaded yolov8n.pt to {model_path}")
 
-# Callback to freeze specific layers in eval mode
-def put_in_eval_mode(trainer):
-    """Freeze the layers in eval mode."""
-    n_layers = trainer.args.freeze
-    if not isinstance(n_layers, int):
-        return
-    for i, (name, module) in enumerate(trainer.model.named_modules()):
-        if name.endswith("bn") and int(name.split(".")[1]) < n_layers:
-            module.eval()
-            module.track_running_stats = False
-
-@hydra.main(config_path="../../configs", config_name="config.yaml")
+@hydra.main(config_path="../../configs", config_name="config.yaml", version_base=None)
 def main(cfg: DictConfig):
     """
     Main function to train YOLO model using Ultralytics and Hydra with W&B tracking.
     """
-    # Create a log subfolder for the model
     log_dir = Path(cfg.training.output_dir) / "logs" / cfg.training.experiment_name
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    # Ensure the W&B log directory exists
     wandb_log_dir = log_dir / "wandb" / f"run-{wandb.util.generate_id()}"
     wandb_log_dir.mkdir(parents=True, exist_ok=True)
 
-    # Path for the trace.json file
     trace_file_path = log_dir / "train_trace.pt.trace.json"
 
-    # Initialize W&B
-    # Initialize W&B
     wandb.init(
      project=cfg.wandb.project_name,
      name=cfg.training.experiment_name,
@@ -66,72 +53,70 @@ def main(cfg: DictConfig):
      )
 
     try:
-        # Start profiler
-        with torch.profiler.profile(
-            activities=[torch.profiler.ProfilerActivity.CPU],
-            profile_memory=False,
-            record_shapes=False,
-            with_stack=False,
-        ) as prof:
-            logger.info("Profiler started.")
+        #with torch.profiler.profile(
+        #    activities=[torch.profiler.ProfilerActivity.CPU],
+        #    profile_memory=False,
+        #    record_shapes=False,
+        #    with_stack=False,
+        #) as prof:
+        logger.info("Profiler started.")
 
-            # Print the configuration
-            logger.info(f"Starting training with config: {yaml.dump(cfg)}")
+        #logger.info(f"Starting training with config: {yaml.dump(cfg)}")
+        breakpoint()
+        processed_dir = Path(cfg.data.processed_dir).resolve()
 
-            # Load processed data paths from configuration
-            processed_dir = Path(cfg.data.processed_dir).resolve()
+        train_images_dir = processed_dir / "train" / "images"
+        train_labels_dir = processed_dir / "train" / "labels"
+        val_images_dir = processed_dir / "val" / "images"
+        val_labels_dir = processed_dir / "val" / "labels"
 
-            train_images_dir = processed_dir / "train" / "images"
-            train_labels_dir = processed_dir / "train" / "labels"
-            val_images_dir = processed_dir / "val" / "images"
-            val_labels_dir = processed_dir / "val" / "labels"
+        if not train_images_dir.exists() or not train_labels_dir.exists():
+            raise FileNotFoundError(f"Training data not found in {train_images_dir} or {train_labels_dir}")
 
-            # Setup the dataset and dataloaders
-            train_dataset = CustomDataset(train_images_dir, train_labels_dir)
-            train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.training.batch_size, shuffle=True)
+        if not val_images_dir.exists() or not val_labels_dir.exists():
+            raise FileNotFoundError(f"Validation data not found in {val_images_dir} or {val_labels_dir}")
 
-            logger.info(f"Loaded {len(train_loader.dataset)} training samples.")
+        train_dataset = CustomDataset(train_images_dir, train_labels_dir)
+        train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=cfg.training.batch_size, shuffle=True)
 
-            # Prepare dataset config file for YOLO
-            data_config = {
-                'train': str(train_images_dir),
-                'val': str(val_images_dir),
-                'nc': cfg.data.num_classes,
-                'names': list(cfg.data.class_names)
-            }
+        if len(train_loader.dataset) == 0:
+            raise ValueError("No training samples found.")
 
-            model = create_yolo_model(cfg.model.pretrained_weights, cfg)
+        logger.info(f"Loaded {len(train_loader.dataset)} training samples.")
 
-            data_yaml_path = processed_dir / "data.yaml"
-            with open(data_yaml_path, "w") as f:
-                yaml.dump(data_config, f)
-            logger.info(f"Data configuration saved to {data_yaml_path}")
+        data_config = {
+            'train': str(train_images_dir),
+            'val': str(val_images_dir),
+            'nc': cfg.data.num_classes,
+            'names': list(cfg.data.class_names)
+        }
 
-            # Create a TensorBoard writer
-            tb_log_dir = Path(cfg.training.output_dir) / "logs"
-            tb_log_dir.mkdir(parents=True, exist_ok=True)
-            writer = SummaryWriter(log_dir=tb_log_dir)
+        model = create_yolo_model(cfg.model.pretrained_weights, cfg)
 
-            # Prepare the YOLO training parameters
-            train_params = {
-                'data': str(data_yaml_path),  # Dataset config file
-                'epochs': cfg.training.epochs,  # Number of epochs
-                'imgsz': cfg.training.img_size,  # Image size
-                'batch': cfg.training.batch_size,  # Batch size
-                'name': cfg.training.experiment_name,  # Experiment name
-                'project': cfg.training.output_dir,  # Directory for results
-                'device': '0' if torch.cuda.is_available() else 'cpu',  # Use GPU if available
-            }
+        data_yaml_path = processed_dir / "data.yaml"
+        with open(data_yaml_path, "w") as f:
+            yaml.dump(data_config, f)
+        logger.info(f"Data configuration saved to {data_yaml_path}")
 
-            # Add callbacks to the YOLO model
-            #model.add_callback("on_train_epoch_start", put_in_eval_mode)
+        tb_log_dir = Path(cfg.training.output_dir) / "logs"
+        tb_log_dir.mkdir(parents=True, exist_ok=True)
+        writer = SummaryWriter(log_dir=tb_log_dir)
 
-            # Start training and log metrics to W&B
-            logger.info("Starting model training.")
-            model.train(**train_params)
+        train_params = {
+            'data': str(data_yaml_path),
+            'epochs': cfg.training.epochs,
+            'imgsz': cfg.training.img_size,
+            'batch': cfg.training.batch_size,
+            'name': cfg.training.experiment_name,
+            'project': cfg.training.output_dir,
+            'device': '0' if torch.cuda.is_available() else 'cpu',
+        }
+
+        logger.info("Starting model training.")
+        model.train(**train_params)
 
         logger.info(f"Saving profiler trace to {trace_file_path}")
-        prof.export_chrome_trace(str(trace_file_path))
+        #prof.export_chrome_trace(str(trace_file_path))
 
     except Exception as e:
         logger.error(f"An error occurred during profiling: {str(e)}")
@@ -142,7 +127,6 @@ def main(cfg: DictConfig):
         trained_model_dir = experiment_dir[0] / "weights"
         trained_model_path = trained_model_dir / "best.pt"
 
-        # Save the trained model as a W&B artifact
         wandb.log_artifact(
             str(trained_model_path),
             name=f"{cfg.training.experiment_name}_model",
@@ -153,4 +137,14 @@ def main(cfg: DictConfig):
     wandb.finish()
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Training script")
+    parser.add_argument("--save_location", type=str, default=str(Path.home() / "models"), help="Location to save the models")
+    parser.add_argument("--n_epochs", type=int, default=1, help="Number of epochs for training")
+
+    args = parser.parse_args()
+
+    hydra.core.global_hydra.GlobalHydra.instance().clear()
+    hydra.initialize(config_path="../../configs")
+    cfg = hydra.compose(config_name="config.yaml", overrides=[f"training.output_dir={args.save_location}", f"training.epochs={args.n_epochs}"])
+
+    main(cfg)

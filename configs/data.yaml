@@ -20,6 +20,6 @@ names:
 - tvmonitor
 - diningtable
 nc: 20
-train: ../data/processed
-val: ../data/processed
+train: ../../data/processed
+val: ../../data/processed
 

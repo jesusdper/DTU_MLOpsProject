@@ -1,6 +1,6 @@
 data:
   #processed_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed"
-  processed_dir: "../data/processed"
+  processed_dir: "../../data/processed"
   num_classes: 20
   class_names:
     - aeroplane
