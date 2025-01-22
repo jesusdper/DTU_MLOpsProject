@@ -11,7 +11,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 
 # Load configuration from config.yaml
-def load_config(config_path=r'C:\Users\jdiaz\Desktop\DTU_MLOpsProject\configs\model_registry_config.yaml'):
+def load_config(config_path=r'..\..\configs\model_registry_config.yaml'):
     """Loads configuration from a YAML file."""
     try:
         with open(config_path, 'r') as file:
@@ -112,7 +112,7 @@ def upload_latest_model(model_path, model_name):
 
 if __name__ == "__main__":
     # Example usage
-    model_path = r'C:\Users\jdiaz\Desktop\DTU_MLOpsProject\models\yolov8_voc_test'  # Path to model directory (before zipping)
+    model_path = r'..\..\models\yolov8_voc_test'  # Path to model directory (before zipping)
     model_name = 'yolov8_voc_test'  # Replace with actual model name
 
     # Compress and upload the latest model
