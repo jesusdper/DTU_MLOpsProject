@@ -1,5 +1,4 @@
 data:
-  #processed_dir: "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed"
   processed_dir: "../../data/processed"
   num_classes: 20
   class_names:
@@ -43,3 +42,4 @@ wandb:
   project_name: "YOLO_Training"
   entity:   # Replace with your W&B entity or leave blank if using your personal account
   enable: true  # Set to false if you want to disable W&B tracking
+

@@ -1,5 +1,5 @@
 import os
-import torch
+import torch  # type: ignore
 from pathlib import Path
 import logging
 import yaml
@@ -32,10 +32,30 @@ if not model_path.exists():
     logger.info(f"Downloaded yolov8n.pt to {model_path}")
 
 @hydra.main(config_path="../../configs", config_name="config.yaml", version_base=None)
+
+# Define the callback for frozen layers
+# Callback to log metrics to W&B
+def wandb_callback(metrics):
+    """Log metrics to W&B."""
+    wandb.log(metrics)
+
+# Callback to freeze specific layers in eval mode
+def put_in_eval_mode(trainer):
+    """Freeze the layers in eval mode."""
+    n_layers = trainer.args.freeze
+    if not isinstance(n_layers, int):
+        return
+    for i, (name, module) in enumerate(trainer.model.named_modules()):
+        if name.endswith("bn") and int(name.split(".")[1]) < n_layers:
+            module.eval()
+            module.track_running_stats = False
+
 def main(cfg: DictConfig):
     """
     Main function to train YOLO model using Ultralytics and Hydra with W&B tracking.
     """
+    # Create a log subfolder for the model
+
     log_dir = Path(cfg.training.output_dir) / "logs" / cfg.training.experiment_name
     log_dir.mkdir(parents=True, exist_ok=True)
 
@@ -51,6 +71,7 @@ def main(cfg: DictConfig):
      dir=str(log_dir),
      resume="allow",
      )
+
 
     try:
         #with torch.profiler.profile(

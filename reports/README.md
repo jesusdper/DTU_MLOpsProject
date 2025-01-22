@@ -48,31 +48,31 @@ will check the repositories and the code to verify your answers.
 
 ### Week 1
 
-* [ ] Create a git repository (M5)
-* [ ] Make sure that all team members have write access to the GitHub repository (M5)
-* [ ] Create a dedicated environment for you project to keep track of your packages (M2)
-* [ ] Create the initial file structure using cookiecutter with an appropriate template (M6)
-* [ ] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
-* [ ] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
-* [ ] Remember to fill out the `requirements.txt` and `requirements_dev.txt` file with whatever dependencies that you
+* [X] Create a git repository (M5)
+* [X] Make sure that all team members have write access to the GitHub repository (M5)
+* [X] Create a dedicated environment for you project to keep track of your packages (M2)
+* [X] Create the initial file structure using cookiecutter with an appropriate template (M6)
+* [X] Fill out the `data.py` file such that it downloads whatever data you need and preprocesses it (if necessary) (M6)
+* [X] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
+* [X] Remember to fill out the `requirements.txt` and `requirements_dev.txt` file with whatever dependencies that you
     are using (M2+M6)
 * [ ] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
 * [ ] Do a bit of code typing and remember to document essential parts of your code (M7)
-* [ ] Setup version control for your data or part of your data (M8)
+* [X] Setup version control for your data or part of your data (M8)
 * [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
 * [ ] Construct one or multiple docker files for your code (M10)
 * [ ] Build the docker files locally and make sure they work as intended (M10)
-* [ ] Write one or multiple configurations files for your experiments (M11)
-* [ ] Used Hydra to load the configurations and manage your hyperparameters (M11)
-* [ ] Use profiling to optimize your code (M12)
-* [ ] Use logging to log important events in your code (M14)
-* [ ] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
+* [X] Write one or multiple configurations files for your experiments (M11)
+* [X] Used Hydra to load the configurations and manage your hyperparameters (M11)
+* [X] Use profiling to optimize your code (M12)
+* [X] Use logging to log important events in your code (M14)
+* [X] Use Weights & Biases to log training progress and other important metrics/artifacts in your code (M14)
 * [ ] Consider running a hyperparameter optimization sweep (M14)
 * [ ] Use PyTorch-lightning (if applicable) to reduce the amount of boilerplate in your code (M15)
 
 ### Week 2
 
-* [ ] Write unit tests related to the data part of your code (M16)
+* [X] Write unit tests related to the data part of your code (M16)
 * [ ] Write unit tests related to model construction and or model training (M16)
 * [ ] Calculate the code coverage (M16)
 * [ ] Get some continuous integration running on the GitHub repository (M17)
@@ -81,10 +81,10 @@ will check the repositories and the code to verify your answers.
 * [ ] Add pre-commit hooks to your version control setup (M18)
 * [ ] Add a continues workflow that triggers when data changes (M19)
 * [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
-* [ ] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
+* [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
 * [ ] Create a trigger workflow for automatically building your docker images (M21)
 * [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
-* [ ] Create a FastAPI application that can do inference using your model (M22)
+* [X] Create a FastAPI application that can do inference using your model (M22)
 * [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
 * [ ] Write API tests for your application and setup continues integration for these (M24)
 * [ ] Load test your application (M24)
@@ -143,7 +143,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 3 fill here ---
+We used the third-party framework YOLOv8 by Ultralytics in our project, which was not covered in the course. YOLOv8 provided state-of-the-art tools for object detection and was instrumental in completing our pipeline. We leveraged its pre-trained models and capabilities for fine-tuning on custom datasets, which streamlined the process of training and evaluation.
+
+Specifically, we used its model training functionality to fine-tune the model on the PASCAL VOC dataset and its inference tools to quickly test and validate the model on new images.
 
 ## Coding environment
 
@@ -212,8 +214,14 @@ will check the repositories and the code to verify your answers.
 > *application but also ... .*
 >
 > Answer:
+> *In total, we have implemented many tests. These are divided into several files, according to the pytest standard,*
+> *and can be found in the root/tests directory. We have been centered mainly in testing  data, model and train files.*
+> *We have found this important, since data, model and training process are the bases for the project. If these modules*
+> *were to have an incorrect functioning, it would deeply affect the functioning of the project in general.*
+> *Therefore, there are other modules that might not be tested as thoroughly, since their importance has been deemed*
+> *smaller in the scope of the project. Despite of this, some key functions are being tested in these other modules to*
+> *ensure that important funcionalities are being met.*
 
---- question 7 fill here ---
 
 ### Question 8
 
@@ -227,8 +235,9 @@ will check the repositories and the code to verify your answers.
 > *code and even if we were then...*
 >
 > Answer:
-
---- question 8 fill here ---
+> *The total coverage of the project at the moment is 45%. We are highly aware that this coverage is not the highest by far*
+> *but, as we have mentioned in the question above, we have pripritized other parts of the project against unit testing of*
+> *modules of functions that might not result as crucial for the overall aspect of the project*.
 
 ### Question 9
 
@@ -258,8 +267,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 10 fill here ---
+We used DVC (Data Version Control) to manage our dataset throughout the project, which was particularly helpful as the dataset evolved over time. Initially, we started with a small subset of raw images for training, validation, and testing, which allowed us to quickly iterate on model development and pipeline testing. At this stage, we could easily track and manage the smaller dataset using DVC, ensuring reproducibility of the experiments.
 
+As the project progressed, we decided to increase the dataset size by incorporating additional images for the final training and evaluation stages. With DVC, we were able to track the larger, processed dataset and easily switch between different versions of the dataset. DVC allowed us to handle the versioning of large files efficiently, ensuring that the increased image set was properly linked to specific model training runs.
 ### Question 11
 
 > **Discuss you continuous integration setup. What kind of continuous integration are you running (unittesting,**
@@ -294,8 +304,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 12 fill here ---
-
+We used Hydra to configure experiments, which allowed for a modular and hierarchical configuration setup. Each experiment was defined using configuration files, with separate YAML files for hyperparameters, dataset paths, and model settings.
 ### Question 13
 
 > **Reproducibility of experiments are important. Related to the last question, how did you secure that no information**
@@ -326,8 +335,13 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 14 fill here ---
+As seen in the first image, we tracked typical object detection metrics, including mean Average Precision (mAP), precision, and recall, which are critical for evaluating the model's ability to detect objects accurately and efficiently. These metrics provide a comprehensive view of performance across classes and IoU thresholds.
 
+In the second image, we visualized batch training and validation images with bounding boxes overlaid, helping us verify that the model was learning correctly and detecting objects as expected. This visualization was particularly useful for debugging issues related to annotations or model predictions.
+
+The third image highlights system metrics, such as GPU utilization and memory consumption, which helped ensure that experiments were running efficiently and within resource constraints.
+
+These metrics and visualizations were automatically logged to W&B, providing an intuitive and detailed overview of each experiment. This not only helped in monitoring but also in comparing runs to identify the best-performing configurations and diagnosing issues.
 ### Question 15
 
 > **Docker is an important tool for creating containerized applications. Explain how you used docker in your**
@@ -447,8 +461,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 23 fill here ---
+We did manage to write an API for our model using FastAPI. The API was designed to receive images, upload models and process them through a desired object detection model, and return the predictions, including bounding boxes, class labels, and confidence scores. We created an endpoint /predict that accepted image files via a POST request. The image was read and preprocessed within the API, and the model's predictions were returned in JSON format.
 
+To enhance the API, we added functionality for visualizing predictions by overlaying bounding boxes on the original images and returning the visualized images as part of the response. This made it more user-friendly and useful for debugging and demonstrations.
 ### Question 24
 
 > **Did you manage to deploy your API, either in locally or cloud? If not, describe why. If yes, describe how and**
@@ -463,8 +478,11 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 24 fill here ---
+We deployed the API locally. To invoke the deployed service, a user would send a POST request with an image file to the endpoint, as shown below:
 
+curl -X POST -F "image=@example.jpg" <web_url>/predict
+
+This returned predictions as a JSON object with bounding box coordinates, class labels, and confidence scores.
 ### Question 25
 
 > **Did you perform any unit testing and load testing of your API? If yes, explain how you did it and what results for**
@@ -478,8 +496,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 25 fill here ---
-
+We performed unit testing using pytest to verify API endpoints and ensure correct handling of edge cases, such as invalid input formats. For load testing, we used Locust, simulating concurrent requests to the /predict endpoint
 ### Question 26
 
 > **Did you manage to implement monitoring of your deployed model? If yes, explain how it works. If not, explain how**
