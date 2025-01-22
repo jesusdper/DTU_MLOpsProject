@@ -13,7 +13,7 @@ import wandb  # For W&B integration
 import shutil
 import torch.profiler
 
-wandb.login(key="b97463597a9b7425acac3f6390c6ec7515ba2585",dir="/home/jdiaz/DTU_MLOpsProject")
+wandb.login(key="b97463597a9b7425acac3f6390c6ec7515ba2585",dir="../../../DTU_MLOpsProject")
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -36,7 +36,7 @@ def put_in_eval_mode(trainer):
             module.eval()
             module.track_running_stats = False
 
-@hydra.main(config_path=r"/home/jdiaz/DTU_MLOpsProject/configs", config_name="config.yaml")
+@hydra.main(config_path=r"../../configs", config_name="config.yaml")
 def main(cfg: DictConfig):
     """
     Main function to train YOLO model using Ultralytics and Hydra with W&B tracking.
