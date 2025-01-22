@@ -1,42 +1,40 @@
 # Base image
 FROM python:3.11-slim AS base
 
-# Update packages and install necessary dependencies
-RUN apt-get update && apt-get install --no-install-recommends -y \
-    build-essential \
-    gcc \
-    libgl1 \
-    libglib2.0-0 \
-    wget \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+ARG PROJECT_ID
 
-# Set working directory
-WORKDIR /app
+RUN apt update && \
+    apt install --no-install-recommends -y build-essential gcc libgl1 libglib2.0-0 && \
+    apt clean && rm -rf /var/lib/apt/lists/*
 
-# Copy project files into the container
-COPY src /app/src
-COPY configs /app/configs
-COPY requirements.txt /app/requirements.txt
-COPY requirements_dev.txt /app/requirements_dev.txt
-COPY README.md /app/README.md
-COPY pyproject.toml /app/pyproject.toml
+RUN apt-get update && apt-get install -y curl gnupg && \
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - && \
+    apt-get update -y && apt-get install google-cloud-sdk -y
 
-# Install Python dependencies
-RUN pip install --upgrade pip
-RUN --mount=type=cache,target=/root/.cache/pip pip install -r /app/requirements.txt
-RUN --mount=type=cache,target=/root/.cache/pip pip install -r /app/requirements_dev.txt
+COPY requirements.txt requirements.txt
+COPY pyproject.toml pyproject.toml
+COPY src src/
+COPY configs /configs
+COPY .dvc .dvc
+COPY dockerfiles/entrypoint.sh entrypoint.sh
+# Add executable permission to file
+RUN chmod +x /entrypoint.sh
 
-# Create directories for storing models and processed data
-RUN mkdir -p /data/raw /data/processed /models/logs /models/weights
+WORKDIR /
 
-# Ensure correct permissions for directories
-RUN chmod -R 777 /data /models
+RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt --verbose --no-cache-dir
+RUN --mount=type=cache,target=/root/.cache/pip pip install . --no-deps --verbose --no-cache-dir
 
-# Set environment variables
-ENV PYTHONPATH=/app/src
-ENV DATA_DIR=/data
-ENV PROCESSED_DIR=/data/processed
+# Set default values for environment variables
+ENV SAVE_LOCATION="/models"
+ENV N_EPOCHS=1
 
-# Define entry point for the container
-ENTRYPOINT ["python", "-u", "src/object_detection/train.py"]
+# Set gcloud project
+RUN gcloud config set project ${PROJECT_ID}
 
+# Download data from GCS
+RUN gsutil -m cp -r gs://pascalvoc_mlops/data /data
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["python", "-u", "src/object_detection/train.py", "--save_location", "$SAVE_LOCATION", "--n_epochs", "$N_EPOCHS"]

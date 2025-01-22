@@ -57,13 +57,13 @@ def main(cfg: DictConfig):
 
     # Initialize W&B
     # Initialize W&B
-# wandb.init(
-#     project=cfg.wandb.project_name,
-#     name=cfg.training.experiment_name,
-#     config=dict(cfg),
-#     dir=str(log_dir),
-#     resume="allow",
-# )
+    wandb.init(
+     project=cfg.wandb.project_name,
+     name=cfg.training.experiment_name,
+     config=dict(cfg),
+     dir=str(log_dir),
+     resume="allow",
+     )
 
     try:
         # Start profiler

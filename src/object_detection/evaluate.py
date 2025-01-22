@@ -8,10 +8,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Define paths (adjust as needed)
-data_dir = Path(
-    "C:/Users/jdiaz/Desktop/DTU_MLOpsProject/data/processed/test/images")  # Assuming images are inside 'images' subfolder
-output_dir = Path("C:/Users/jdiaz/Desktop/DTU_MLOpsProject/results/inference")
-model_dir = Path("C:/Users/jdiaz/Desktop/DTU_MLOpsProject/models/yolov8_voc_test_new2")
+data_dir = Path("../../data/processed/test/images")  # Assuming images are inside 'images' subfolder # Assuming images are inside 'images' subfolder
+output_dir = Path("../../results/inference")
+model_dir = Path("../../models/yolov8_voc_test_new2")
 model_path = model_dir / "weights/best.pt"
 
 # Ensure output directory exists
