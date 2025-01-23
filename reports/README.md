@@ -56,8 +56,8 @@ will check the repositories and the code to verify your answers.
 * [X] Add a model to `model.py` and a training procedure to `train.py` and get that running (M6)
 * [X] Remember to fill out the `requirements.txt` and `requirements_dev.txt` file with whatever dependencies that you
     are using (M2+M6)
-* [ ] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
-* [ ] Do a bit of code typing and remember to document essential parts of your code (M7)
+* [X] Remember to comply with good coding practices (`pep8`) while doing the project (M7)
+* [X] Do a bit of code typing and remember to document essential parts of your code (M7)
 * [X] Setup version control for your data or part of your data (M8)
 * [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
 * [X] Construct one or multiple docker files for your code (M10)
@@ -118,14 +118,15 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 1 fill here ---
+48
 
 ### Question 2
 > **Enter the study number for each member in the group**
 >
 > Example:
 >
-> *sXXXXXX, sXXXXXX, sXXXXXX*
+
+s233142, s232507, 
 >
 > Answer:
 
@@ -168,8 +169,42 @@ The framework's built-in features for visualizing predictions and evaluating per
 > *complete copy of our development environment, one would have to run the following commands*
 >
 > Answer:
+We used `pip` to manage dependencies in our project, ensuring that all required packages and their specific versions were recorded for reproducibility. The dependency list was maintained in two files: `requirements.txt` for production dependencies and `requirements_dev.txt` for development tools. These files were created by running the command `pip freeze > requirements.txt` after installing all necessary packages.
 
---- question 4 fill here ---
+To replicate the environment, a new team member would need to follow these steps:
+
+1. Clone the repository to their local machine:  
+   ```bash
+   git clone https://github.com/moorekevin/dtu-02476-mlops-project
+   cd dtu-02476-mlops-project
+
+2. Create a virtual environment:
+    ```bash
+    python -m venv env
+
+3. Activate the virtual environment:
+
+On Windows:
+
+    ```bash
+    env\Scripts\activate
+    
+On macOS/Linux:
+
+    ```bash
+    source env/bin/activate
+
+4. Install dependencies from the requirements file:
+
+    ```bash
+    pip install -r requirements.txt
+
+5. (Optional) Install development dependencies:
+
+    ```bash
+    pip install -r requirements_dev.txt
+
+By following these steps, the team member will have an exact copy of the environment, ensuring consistency across development and production.
 
 ### Question 5
 
@@ -184,8 +219,11 @@ The framework's built-in features for visualizing predictions and evaluating per
 > *experiments.*
 >
 > Answer:
+From the cookiecutter template, we have filled out the `src/` folder to include the main modules of our project, such as `api.py`, `train.py`, `evaluate.py`, and others. The `tests/` folder was populated with test scripts for data validation (`test_data.py`), model evaluation (`test_model.py`), and API functionality (`test_api.py`). We also customized the `configs/` folder with specific configuration files tailored to our project requirements.
 
---- question 5 fill here ---
+We kept the overall structure provided by the template, including the `data/` folder for raw and processed datasets, the `models/` folder for storing trained models, and the `notebooks/` folder for exploratory data analysis and prototyping. The `docs/` folder was utilized for documentation, and we added content to the `mkdocs.yml` and `index.md` files to reflect the project objectives.
+
+We made minor deviations from the template by adding additional scripts to the `src/` folder, such as `visualize.py` for data visualization. Additionally, we removed unused boilerplate files from the template that were not relevant to our specific project. This structure allowed us to maintain modularity and adhere to MLOps best practices.
 
 ### Question 6
 
@@ -251,7 +289,11 @@ In total, we have implemented many tests. These are divided into several files, 
 >
 > Answer:
 
---- question 9 fill here ---
+We made use of both branches and pull requests in our workflow to follow good coding practices and avoid overlapping work among team members. Each team member created a personal branch for the specific features or tasks they were working on, ensuring that the `main` branch always remained stable and clean. For example, one member worked on the `data-processing` branch, another on the `model-training` branch, and so on.
+
+Once a feature or task was completed, the contributor would create a pull request to merge their branch into the `main` branch. The pull request served as a checkpoint where other team members could review the code, provide feedback, and ensure there were no conflicts or errors before approving the merge. This approach encouraged collaboration and helped us maintain high-quality, well-tested code.
+
+Using branches and pull requests allowed us to work simultaneously on different parts of the project without interfering with each other, ensuring efficient teamwork and a reliable version control system.
 
 ### Question 10
 
@@ -376,7 +418,7 @@ These metrics and visualizations were automatically logged to W&B, providing an 
 >
 > Answer:
 
---- question 16 fill here ---
+When running into bugs while trying to run our experiments, we primarily used the debugging tools provided by Visual Studio Code (VSCode). We utilized breakpoints, step-through execution, and variable inspection features to track down and fix issues in our code. Each team member had their preferred method—some focused on step-by-step execution, while others used the console to print out variables for quick inspection. This allowed us to understand the flow of our programs and isolate the source of bugs more effectively.
 
 ## Working in the cloud
 
