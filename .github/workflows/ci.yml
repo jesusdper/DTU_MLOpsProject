@@ -37,6 +37,6 @@ jobs:
 
       # Works
     # Train
-    - name: Train the model
+    - name: Model Statistics
       run: |
         python src/object_detection/dataset_statistics.py --datadir data/processed
