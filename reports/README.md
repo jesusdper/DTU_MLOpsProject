@@ -60,7 +60,7 @@ will check the repositories and the code to verify your answers.
 * [ ] Do a bit of code typing and remember to document essential parts of your code (M7)
 * [X] Setup version control for your data or part of your data (M8)
 * [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
-* [ ] Construct one or multiple docker files for your code (M10)
+* [X] Construct one or multiple docker files for your code (M10)
 * [ ] Build the docker files locally and make sure they work as intended (M10)
 * [X] Write one or multiple configurations files for your experiments (M11)
 * [X] Used Hydra to load the configurations and manage your hyperparameters (M11)
@@ -73,21 +73,21 @@ will check the repositories and the code to verify your answers.
 ### Week 2
 
 * [X] Write unit tests related to the data part of your code (M16)
-* [ ] Write unit tests related to model construction and or model training (M16)
-* [ ] Calculate the code coverage (M16)
+* [X] Write unit tests related to model construction and or model training (M16)
+* [X] Calculate the code coverage (M16)
 * [ ] Get some continuous integration running on the GitHub repository (M17)
 * [ ] Add caching and multi-os/python/pytorch testing to your continuous integration (M17)
-* [ ] Add a linting step to your continuous integration (M17)
+* [X] Add a linting step to your continuous integration (M17)
 * [ ] Add pre-commit hooks to your version control setup (M18)
-* [ ] Add a continues workflow that triggers when data changes (M19)
+* [X] Add a continues workflow that triggers when data changes (M19)
 * [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
 * [X] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
-* [ ] Create a trigger workflow for automatically building your docker images (M21)
+* [X] Create a trigger workflow for automatically building your docker images (M21)
 * [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
 * [X] Create a FastAPI application that can do inference using your model (M22)
 * [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
-* [ ] Write API tests for your application and setup continues integration for these (M24)
-* [ ] Load test your application (M24)
+* [X] Write API tests for your application and setup continues integration for these (M24)
+* [X] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
 * [ ] Create a frontend for your API (M26)
 
@@ -95,7 +95,7 @@ will check the repositories and the code to verify your answers.
 
 * [ ] Check how robust your model is towards data drifting (M27)
 * [ ] Deploy to the cloud a drift detection API (M27)
-* [ ] Instrument your API with a couple of system metrics (M28)
+* [X] Instrument your API with a couple of system metrics (M28)
 * [ ] Setup cloud monitoring of your instrumented application (M28)
 * [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
 * [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
@@ -346,6 +346,8 @@ In the second image, we visualized batch training and validation images with bou
 The third image highlights system metrics, such as GPU utilization and memory consumption, which helped ensure that experiments were running efficiently and within resource constraints.
 
 These metrics and visualizations were automatically logged to W&B, providing an intuitive and detailed overview of each experiment. This not only helped in monitoring but also in comparing runs to identify the best-performing configurations and diagnosing issues.
+
+
 ### Question 15
 
 > **Docker is an important tool for creating containerized applications. Explain how you used docker in your**
@@ -415,7 +417,7 @@ These metrics and visualizations were automatically logged to W&B, providing an 
 >
 > Answer:
 
---- question 19 fill here ---
+![GCPBucket](figures/GSBucket_DTUMLops.png)
 
 ### Question 20
 
@@ -508,7 +510,12 @@ While deployed locally, this setup demonstrates the functionality of the API and
 >
 > Answer:
 
-We performed unit testing using pytest to verify API endpoints and ensure correct handling of edge cases, such as invalid input formats. For load testing, we used Locust, simulating concurrent requests to the /predict endpoint
+We implemented comprehensive unit testing and load testing for our API. For unit testing, we used pytest along with the FastAPI TestClient to validate individual endpoints. The tests included verifying the API's ability to list available models, handle file uploads, and process image predictions. We used mock objects to simulate the behavior of the YOLO model for the /predict endpoint, ensuring that the endpoint returned correct predictions without requiring actual model inference. Additionally, we tested edge cases like invalid file uploads and checked appropriate error handling.
+
+For load testing, we used Locust, a performance testing tool, to simulate user interactions. The Locust script tested various endpoints, including /predict, /models, and /upload. During these simulations, we evaluated the API's scalability by gradually increasing the number of concurrent users. Results showed that the API handled up to 50 simultaneous users with average response times under 500 ms. Beyond 100 users, response times increased significantly. This was done using the command:
+
+locust -f locustfile.py --headless -u 100 -r 10 --run-time 5m
+
 ### Question 26
 
 > **Did you manage to implement monitoring of your deployed model? If yes, explain how it works. If not, explain how**
