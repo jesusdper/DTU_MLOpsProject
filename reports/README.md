@@ -61,7 +61,7 @@ will check the repositories and the code to verify your answers.
 * [X] Setup version control for your data or part of your data (M8)
 * [ ] Add command line interfaces and project commands to your code where it makes sense (M9)
 * [X] Construct one or multiple docker files for your code (M10)
-* [X] Build the docker files locally and make sure they work as intended (M10)
+* [ ] Build the docker files locally and make sure they work as intended (M10)
 * [X] Write one or multiple configurations files for your experiments (M11)
 * [X] Used Hydra to load the configurations and manage your hyperparameters (M11)
 * [X] Use profiling to optimize your code (M12)
@@ -109,7 +109,7 @@ will check the repositories and the code to verify your answers.
 * [ ] Revisit your initial project description. Did the project turn out as you wanted?
 * [ ] Create an architectural diagram over your MLOps pipeline
 * [ ] Make sure all group members have an understanding about all parts of the project
-* [ ] Uploaded all your code to GitHub
+* [X] Uploaded all your code to GitHub
 
 ## Group information
 
@@ -126,7 +126,7 @@ will check the repositories and the code to verify your answers.
 > Example:
 >
 
-s233142, s232507, 
+s233142, s232507, s232509 ,s233514, s240451
 >
 > Answer:
 
@@ -143,8 +143,6 @@ s233142, s232507,
 > *package to do ... and ... in our project*.
 >
 > Answer:
-
-ADD SOMETHING IF IT HAS BEEN USED 
 
 We used the third-party framework YOLOv8 by Ultralytics in our project, which was not covered in the course. YOLOv8 offers state-of-the-art tools for object detection, making it a highly versatile choice for building a robust and efficient pipeline. We leveraged its pre-trained models and capabilities for fine-tuning on custom datasets, which streamlined the process of training and evaluation.
 
@@ -177,33 +175,34 @@ To replicate the environment, a new team member would need to follow these steps
    ```bash
    git clone https://github.com/moorekevin/dtu-02476-mlops-project
    cd dtu-02476-mlops-project
-
+    ```
 2. Create a virtual environment:
     ```bash
     python -m venv env
-
+    ```
 3. Activate the virtual environment:
 
 On Windows:
 
     ```bash
     env\Scripts\activate
+    ```
     
 On macOS/Linux:
 
     ```bash
     source env/bin/activate
-
+    ```
 4. Install dependencies from the requirements file:
 
     ```bash
     pip install -r requirements.txt
-
+    ```
 5. (Optional) Install development dependencies:
 
     ```bash
     pip install -r requirements_dev.txt
-
+    ```
 By following these steps, the team member will have an exact copy of the environment, ensuring consistency across development and production.
 
 ### Question 5
@@ -257,7 +256,7 @@ These practices are crucial in larger projects because they establish a shared u
 > *application but also ... .*
 >
 > Answer:
-In total, we have implemented many tests. These are divided into several files, according to the pytest standard, and can be found in the root/tests directory. We have been centered mainly in testing  data, model and train files. We have found this important, since data, model and training process are the bases for the project. If these modules were to have an incorrect functioning, it would deeply affect the functioning of the project in general. Therefore, there are other modules that might not be tested as thoroughly, since their importance has been deemed smaller in the scope of the project. Despite of this, some key functions are being tested in these other modules to ensure that important funcionalities are being met.
+We have implemented 16 tests. These are divided into files according to the pytest standard, and are located in root/tests. We have been centered in testing  data, model and train files. This is relevant, since these scripts are the bases for the project. If these modules were to have an incorrect functioning, it would affect the overall results of the project . Therefore, there are other modules that might not be tested as thoroughly, since their importance has been deemed smaller. Despite this, some key functions are being tested outside these modules to ensure other relevant functionalities are accomplished.
 
 
 ### Question 8
@@ -272,9 +271,10 @@ In total, we have implemented many tests. These are divided into several files, 
 > *code and even if we were then...*
 >
 > Answer:
-> *The total coverage of the project at the moment is 45%. We are highly aware that this coverage is not the highest by far*
-> *but, as we have mentioned in the question above, we have pripritized other parts of the project against unit testing of*
+> *The total coverage of the project at the moment is 39%. We are highly aware that this coverage is not the highest by far*
+> *but, as we have mentioned in the question above, we have prioritized other parts of the project against unit testing of*
 > *modules of functions that might not result as crucial for the overall aspect of the project*.
+> *In reality, when testing the coverage we get only 13%. This is because root/tests/integrationtest/test_apis.py raises an unknown error that stops pytest-coverage from trying to retrieve more tests. When said tests are ignored, the coverage increases to a more representative value of 39%.*
 
 ### Question 9
 
@@ -326,7 +326,9 @@ As the project progressed, we decided to increase the dataset size by incorporat
 >
 > Answer:
 
---- question 11 fill here ---
+As part of the continuous integration, we have implemented unittesting (as specified above), which has helped us keep up with the changes to functions and notice how parts of the code are related to each other, when performing changes to different modules. We have also used pre-commit. To properly use this, each team member had to install the pre-commit hook by running ```pre-commit install```. The pre-commit file includes linting with Flake8 and reformatting with Black. Moreover, we have implemented CI through GitHub Actions (the CI pipeline and the workflows can be seen here: https://github.com/jesusdper/DTU_MLOpsProject/actions/workflows/ci2.yml), which follows several steps while running on Ubuntu-latest.
+
+
 
 ## Running code and tracking experiments
 
@@ -381,14 +383,19 @@ To reproduce an experiment, one would only need to re-run the train.py script wi
 >
 > Answer:
 
-As seen in the first image, we tracked typical object detection metrics, including mean Average Precision (mAP), precision, and recall, which are critical for evaluating the model's ability to detect objects accurately and efficiently. These metrics provide a comprehensive view of performance across classes and IoU thresholds.
+As seen in first image, we tracked typical object detection metrics, including mean Average Precision (mAP), precision, and recall, which are critical for evaluating the model's ability to detect objects accurately and efficiently. These metrics provide a comprehensive view of performance across classes and IoU thresholds. Integrating YOLO with WandB has been straightforward because we could directly extract the metrics reported by YOLO during training and log them seamlessly. This facilitated continuous monitoring and analysis, helping us make data-driven decisions to improve model performance.
 
-In the second image, we visualized batch training and validation images with bounding boxes overlaid, helping us verify that the model was learning correctly and detecting objects as expected. This visualization was particularly useful for debugging issues related to annotations or model predictions.
+![wandbmetricsper](figures/wandbmetricsperformance.png)
 
-The third image highlights system metrics, such as GPU utilization and memory consumption, which helped ensure that experiments were running efficiently and within resource constraints.
+First image displays the performance metrics we are using, such as "metrics/mAP50(B)," "metrics/mAP50-95(B)," and "metrics/precision(B)." These graphs provide visual insights into the performance improvements of the model over time, highlighting how the metrics evolve with each step.
 
-These metrics and visualizations were automatically logged to W&B, providing an intuitive and detailed overview of each experiment. This not only helped in monitoring but also in comparing runs to identify the best-performing configurations and diagnosing issues.
+Moreover, the ability to visualize batch training and validation images with bounding boxes directly generated from YOLO Ultralytics was invaluable. This allowed us to verify that the model was learning correctly and detecting objects as expected. These visualizations played a crucial role in debugging issues related to annotations or model predictions, ensuring that any discrepancies could be swiftly addressed.
 
+![wandbmetricsystem](figures/wandbmetricssytem.png)
+
+Second image highlights system metrics, such as memory consumption, which helped ensure that experiments were running efficiently and within resource constraints. Monitoring these system metrics was essential to prevent resource overuse and to optimize the training process. It provided insights into how different configurations affected resource utilization, allowing us to fine-tune our setup for maximum efficiency.
+
+These metrics and visualizations were automatically logged to WandB, providing an intuitive and detailed overview of each experiment. This not only helped in monitoring but also in comparing runs to identify the best-performing configurations and diagnosing issues. By leveraging WandB's capabilities, we ensured that our model development process was transparent, reproducible, and efficient, leading to better overall performance and more reliable outcomes.
 
 ### Question 15
 
@@ -403,23 +410,11 @@ These metrics and visualizations were automatically logged to W&B, providing an 
 >
 > Answer:
 
-For our project, we developed several Docker images: one for training and one for inference. The training image is defined
-in DTU_MLOpsProject/dockerfiles/train.dockerfile, and it includes all necessary dependencies and configurations to train 
-our YOLO model using Ultralytics and Hydra with W&B tracking. The inference image is defined in DTU_MLOpsProject/dockerfiles/api.dockerfile, 
-which sets up a FastAPI application for serving the trained model.
-
-To run the training Docker image, we use the following command:
-
-```shell
-docker run --rm experiment1 train:latest
-```
-
+-For our project, we developed several Docker images: one for training and one for inference. The training image is defined in DTU_MLOpsProject/dockerfiles/train.dockerfile, and it includes all necessary dependencies and configurations to train our YOLO model using Ultralytics and Hydra with W&B tracking. The inference image is defined in DTU_MLOpsProject/dockerfiles/api.dockerfile, and it sets up a FastAPI application for serving the trained model.To run the training Docker image, we use the following command:
+```shelldocker run --rm experiment1 train:latest```
 Link to docker file: [`DTU_MLOpsProject/dockerfiles/train.dockerfile`](../dockerfiles/train.dockerfile)
-
 To run the inference Docker image, we use:
-```shell
-docker run -p 8000:8000 fastapi-app:latest
-```
+```shelldocker run -p 8000:8000 fastapi-app:latest```
 The inference image is defined in [`DTU_MLOpsProject/dockerfiles/api.dockerfile`](../dockerfiles/api.dockerfile),
 
 ### Question 16
@@ -435,7 +430,7 @@ The inference image is defined in [`DTU_MLOpsProject/dockerfiles/api.dockerfile`
 >
 > Answer:
 
-When running into bugs while trying to run our experiments, we primarily used the debugging tools provided by Visual Studio Code (VSCode). We utilized breakpoints, step-through execution, and variable inspection features to track down and fix issues in our code. Each team member had their preferred method—some focused on step-by-step execution, while others used the console to print out variables for quick inspection. This allowed us to understand the flow of our programs and isolate the source of bugs more effectively.
+When running into bugs while trying to run our experiments, we primarily used the debugging tools provided by Visual Studio Code (VSCode) or Pycharm depending on the IDE used by each group member. We utilized breakpoints, step-through execution, and variable inspection features to track down and fix issues in our code. We didn’t establish a consensus on how team members should debug their own code. Each team member had their preferred method—some focused on step-by-step execution, while others used the console to print out variables for quick inspection. This allowed us to understand the flow of our programs and isolate the source of bugs more effectively.
 
 ## Working in the cloud
 
@@ -451,8 +446,11 @@ When running into bugs while trying to run our experiments, we primarily used th
 > *We used the following two services: Engine and Bucket. Engine is used for... and Bucket is used for...*
 >
 > Answer:
-
---- question 17 fill here ---
+In our project, we used several GCP services to build and deploy our infrastructure and applications. These services include:
+Compute Engine: We used Compute Engine to create and manage virtual machines (VMs). These VMs allowed us to run an operating system in the cloud, enabling us to scale operations and run heavy computational tasks like training deep learning models without impacting local resources.
+Cloud Storage: We utilized Cloud Storage to store and manage our project’s data. This service provides scalable, durable, and secure storage, which is essential for versioning and easily accessing large datasets.
+Artifact Registry: Artifact Registry was used to store Docker images in a centralized repository. This service facilitated the management and storage of container images, allowing us to build and deploy containers more efficiently.
+Cloud Build: We leveraged Cloud Build to automate the container build process. Cloud Build allowed us to trigger builds through configuration files and integrated with GitHub for continuous integration. 
 
 ### Question 18
 
@@ -467,7 +465,9 @@ When running into bugs while trying to run our experiments, we primarily used th
 >
 > Answer:
 
---- question 18 fill here ---
+
+We made use of GCP’s Compute Engine to create and run virtual machines (VMs) for our project. Specifically, we started by creating an e2-medium instance, which provides a balanced CPU and memory configuration suitable for moderate workloads. To test the capabilities, we also explored using pre-configured images from the deeplearning-platform-release repository, which provides specialized VM images with deep learning frameworks like PyTorch and TensorFlow.
+For GPU acceleration, we also considered running the VM with an nvidia-tesla-V100 accelerator to take advantage of enhanced computational power, especially for training models. We selected the pytorch-latest-cpu image family, which contained Python and PyTorch pre-installed. 
 
 ### Question 19
 
@@ -476,7 +476,7 @@ When running into bugs while trying to run our experiments, we primarily used th
 >
 > Answer:
 
-![GCPBucket](figures/GSBucket_DTUMLops.png)
+![GCPBucket](figures/question_19.png)
 
 ### Question 20
 
@@ -485,7 +485,8 @@ When running into bugs while trying to run our experiments, we primarily used th
 >
 > Answer:
 
---- question 20 fill here ---
+![GCPBucket](figures/question_20_a.png), 
+![GCPBucket](figures/question_20_b.png) 
 
 ### Question 21
 
@@ -494,7 +495,7 @@ When running into bugs while trying to run our experiments, we primarily used th
 >
 > Answer:
 
---- question 21 fill here ---
+![GCPBucket](figures/question_21.png) 
 
 ### Question 22
 
@@ -623,7 +624,7 @@ These metrics are exposed at /metrics, enabling integration with visualization t
 >
 > Answer:
 
---- question 28 fill here ---
+No.
 
 ### Question 29
 
@@ -640,6 +641,13 @@ These metrics are exposed at /metrics, enabling integration with visualization t
 >
 > Answer:
 
+The diagram illustrates the overall architecture of our machine learning operations (MLOps) pipeline. We start with local development, integrating Hydra for configuration management and W&B for tracking experiments and hyperparameters. This systematic approach helps optimize our model configurations.
+
+Additionally, we developed a local API using FastAPI to facilitate interactions with our model. This API enables easy access to model predictions and integration with other systems, providing a seamless interface for users.
+
+To ensure the reliability and performance of our API, we monitor it using Locus and Prometheus. Locus allows us to perform load testing and simulate real-world usage scenarios, ensuring that our API can handle various demands. Prometheus provides comprehensive metrics for monitoring the API's performance, such as response times, memory usage, and resource utilization.
+
+When we commit and push our code to GitHub, it triggers automated workflows using GitHub Actions. These workflows perform essential tasks like running tests, linting, and static analysis to ensure code quality and consistency. Once the code passes all checks, a Docker image is built and pushed to Google Cloud Platform (GCP)'s Container Registry. The latest Docker images can then be pulled for deployment or further local testing, ensuring a smooth transition from development to production.
 --- question 29 fill here ---
 
 ### Question 30
@@ -654,7 +662,12 @@ These metrics are exposed at /metrics, enabling integration with visualization t
 >
 > Answer:
 
---- question 30 fill here ---
+The biggest challenge in the project was coordinating effectively as a team and bringing all the tasks together into a working system. With everyone working on different parts of the project—like data preprocessing, model training, deployment pipelines—it was easy for things to get out of sync. Sometimes, changes in one area, like the data pipeline, would cause unexpected issues in another, like the model training process. This often led to delays and required additional effort to troubleshoot and resolve the issues.
+To overcome this, we relied on version control tools to keep everything organized. Using branches and pull requests allowed us to work in parallel while keeping track of changes and avoiding conflicts. Regular code reviews helped us make sure everything fit together properly before merging. These reviews also provided an opportunity for team members to share feedback and improve the overall quality of the code.
+We also focused on improving our organization. We set up regular meetings to check in on progress, assigned clear roles to avoid overlap, and documented what we were doing so everyone stayed on the same page. These small but important steps made it much easier to coordinate and reduced the confusion we had at the start. Additionally, we used project management tools to track tasks and deadlines, ensuring that everyone was aware of their responsibilities and the project's timeline.
+By using version control effectively and staying organized, we were able to solve the coordination challenges and keep the project on track. This approach not only improved our efficiency but also fostered better communication and collaboration within the team. As a result, we were able to deliver a high-quality product that met our goals and exceeded our expectations.
+
+
 
 ### Question 31
 
@@ -671,5 +684,20 @@ These metrics are exposed at /metrics, enabling integration with visualization t
 > *All members contributed to code by...*
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
+Individual contributions:
 
---- question 31 fill here ---
+Throughout the project, ChatGPT was used to assist in implementing and debugging parts of the Python code, and to ask questions about how proceed with some parts
+After using this tool, we reviewed and edited the content as needed, and we take full responsibility for it.
+
+s233142 was responsible for looking into the data and YOLO model setup and training, as well as parts related to the API, and their testing.
+
+
+
+
+
+
+
+
+
+
+
