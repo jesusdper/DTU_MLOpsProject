@@ -27,7 +27,7 @@ model:
   pretrained_weights: "yolov8n.pt"  # YOLOv8 nano model
 
 training:
-  epochs: 7
+  epochs: 50
   img_size: 640
   batch_size: 16
   experiment_name: "yolov8_voc_test_wandb"
