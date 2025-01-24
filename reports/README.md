@@ -646,6 +646,8 @@ No.
 >
 > Answer:
 
+![workflowfigure](figures/MLops_overview.jpeg)
+
 The diagram illustrates the overall architecture of our machine learning operations (MLOps) pipeline. 
 
 We start with local development, integrating Hydra for configuration management and W&B for tracking experiments and hyperparameters. This systematic approach helps optimize our model configurations.
@@ -656,7 +658,7 @@ To ensure the reliability and performance of our API, we monitor it using Locus 
 
 When we commit and push our code to GitHub, it triggers automated workflows using GitHub Actions. These workflows perform essential tasks like running tests, linting, and static analysis to ensure code quality and consistency. Once the code passes all checks, a Docker image is built and pushed to Google Cloud Platform (GCP)'s Container Registry. The latest Docker images can then be pulled for deployment or further local testing, ensuring a smooth transition from development to production.
 
-[workflowfigure](figures/workflow.png)
+
 
 ### Question 30
 
