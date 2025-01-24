@@ -18,9 +18,6 @@ COPY src src/
 COPY configs /configs
 COPY .dvc .dvc
 COPY data/ data/
-#COPY dockerfiles/entrypoint.sh entrypoint.sh
-# Add executable permission to file
-#RUN chmod +x /entrypoint.sh
 
 WORKDIR /
 
@@ -33,10 +30,7 @@ ENV N_EPOCHS=1
 
 # Set gcloud project
 RUN gcloud config set project ${PROJECT_ID}
-#RUN mkdir -p data && gsutil cp -r gs://pascalvoc_mlops/data data/
 
-#ENTRYPOINT ["/entrypoint.sh"]
-#CMD ["python", "-u", "src/object_detection/train.py", "--save_location", "$SAVE_LOCATION", "--n_epochs", "$N_EPOCHS"]
 
 ENTRYPOINT ["python", "-u", "src/object_detection/train.py"]
 CMD ["--save_location", "/models", "--n_epochs", "1"]
