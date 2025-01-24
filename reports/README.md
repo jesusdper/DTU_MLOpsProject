@@ -126,11 +126,11 @@ will check the repositories and the code to verify your answers.
 > Example:
 >
 
-s233142, s232507, s232509 ,s233514, s240451
+sXXXXXX, sXXXXXX, sXXXXXX, sXXXXXX, sXXXXXX
 >
 > Answer:
 
---- question 2 fill here ---
+s233142, s232507, s232509 ,s233514, s240451
 
 ### Question 3
 > **A requirement to the project is that you include a third-party package not covered in the course. What framework**
@@ -410,12 +410,25 @@ These metrics and visualizations were automatically logged to WandB, providing a
 >
 > Answer:
 
--For our project, we developed several Docker images: one for training and one for inference. The training image is defined in DTU_MLOpsProject/dockerfiles/train.dockerfile, and it includes all necessary dependencies and configurations to train our YOLO model using Ultralytics and Hydra with W&B tracking. The inference image is defined in DTU_MLOpsProject/dockerfiles/api.dockerfile, and it sets up a FastAPI application for serving the trained model.To run the training Docker image, we use the following command:
-```shelldocker run --rm experiment1 train:latest```
-Link to docker file: [`DTU_MLOpsProject/dockerfiles/train.dockerfile`](../dockerfiles/train.dockerfile)
+-For our project, we developed several Docker images: one for training and one for inference. The training image is defined in DTU_MLOpsProject/dockerfiles/train.dockerfile, 
+and it includes all necessary dependencies and configurations to train our YOLO model using Ultralytics and Hydra with W&B tracking. 
+The inference image is defined in DTU_MLOpsProject/dockerfiles/api.dockerfile, and it sets up a FastAPI application for serving the trained model.
+To run the training Docker image, we use the following command:
+
+```shell
+docker run --rm experiment1 train:latest
+```
+
+Link to docker file: 
+[`DTU_MLOpsProject/dockerfiles/train.dockerfile`](../dockerfiles/train.dockerfile)
+
 To run the inference Docker image, we use:
-```shelldocker run -p 8000:8000 fastapi-app:latest```
-The inference image is defined in [`DTU_MLOpsProject/dockerfiles/api.dockerfile`](../dockerfiles/api.dockerfile),
+
+```shell
+docker run -p 8000:8000 fastapi-app:latest
+```
+The inference image is defined in:
+[`DTU_MLOpsProject/dockerfiles/api.dockerfile`](../dockerfiles/api.dockerfile),
 
 ### Question 16
 
