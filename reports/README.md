@@ -510,7 +510,10 @@ For GPU acceleration, we also considered running the VM with an nvidia-tesla-V10
 >
 > Answer:
 
---- question 22 fill here ---
+We attempted to train the model in the cloud using both Compute Engine and Vertex AI but was unable to complete the process successfully. Using Compute Engine, was created a virtual machine with the pytorch-latest-gpu image and ensured it had the necessary resources for training. We successfully accessed the VM, verified the PyTorch installation, and set up my environment, including dependencies and data. However, during the execution phase, I encountered connectivity issues while attempting to retrieve data from a Cloud Storage bucket, which halted progress.
+
+For Vertex AI, was configured a config.yaml file and used the gcloud ai custom-jobs create command to initiate a training job. While the job started, I faced errors with the container accessing required secrets, likely due to misconfiguration in the Secret Manager setup. Although we couldn’t fully complete the training, we gained valuable insights into the complexity and potential of cloud-based ML training.
+
 
 ## Deployment
 
@@ -608,7 +611,9 @@ These metrics are exposed at /metrics, enabling integration with visualization t
 >
 > Answer:
 
---- question 27 fill here ---
+Personally, we used a total of $5.33 in credits during the project. The most expensive service was the Compute Engine, specifically when creating virtual machines with GPU support, as these instances have higher hourly costs due to their enhanced computational power. However, by opting for the e2-medium instances and pre-configured images from the deeplearning-platform-release, we optimized resource usage and minimized expenses.
+Working in the cloud was a highly positive experience. It provided scalability, flexibility, and access to powerful hardware, which would otherwise be expensive or impractical to set up locally. The ability to configure VMs with different hardware specifications and pre-installed software stacks saved time and simplified workflows.
+
 
 ### Question 28
 
@@ -641,14 +646,17 @@ No.
 >
 > Answer:
 
-The diagram illustrates the overall architecture of our machine learning operations (MLOps) pipeline. We start with local development, integrating Hydra for configuration management and W&B for tracking experiments and hyperparameters. This systematic approach helps optimize our model configurations.
+The diagram illustrates the overall architecture of our machine learning operations (MLOps) pipeline. 
+
+We start with local development, integrating Hydra for configuration management and W&B for tracking experiments and hyperparameters. This systematic approach helps optimize our model configurations.
 
 Additionally, we developed a local API using FastAPI to facilitate interactions with our model. This API enables easy access to model predictions and integration with other systems, providing a seamless interface for users.
 
 To ensure the reliability and performance of our API, we monitor it using Locus and Prometheus. Locus allows us to perform load testing and simulate real-world usage scenarios, ensuring that our API can handle various demands. Prometheus provides comprehensive metrics for monitoring the API's performance, such as response times, memory usage, and resource utilization.
 
 When we commit and push our code to GitHub, it triggers automated workflows using GitHub Actions. These workflows perform essential tasks like running tests, linting, and static analysis to ensure code quality and consistency. Once the code passes all checks, a Docker image is built and pushed to Google Cloud Platform (GCP)'s Container Registry. The latest Docker images can then be pulled for deployment or further local testing, ensuring a smooth transition from development to production.
---- question 29 fill here ---
+
+[workflowfigure](figures/workflow.png)
 
 ### Question 30
 
@@ -686,12 +694,18 @@ By using version control effectively and staying organized, we were able to solv
 > Answer:
 Individual contributions:
 
-Throughout the project, ChatGPT was used to assist in implementing and debugging parts of the Python code, and to ask questions about how proceed with some parts
-After using this tool, we reviewed and edited the content as needed, and we take full responsibility for it.
-
 s233142 was responsible for looking into the data and YOLO model setup and training, as well as parts related to the API, and their testing.
 
+s232509 created and tested the Docker files and images for our project, ensuring the training environment and API images worked locally; and built and tested the containers to ensure both images ran and interacted correctly, using Ruff to refine parts of the code.
 
+s240451 set up the cloud infrastructure, including the creation and configuration of virtual machines using Compute Engine. They developed and tested Docker containers, prepared the cloudbuild.yaml file for deployment automation, and explored model training. 
+
+s232507 covered the part of structuring the code to ensure a good architecture, also by adding styling and enforcing consistent typing throughout the codebase, enhancing its readability and adherence to best practices. Additionally, collaborated in the development of the API.
+
+s233514 created the unit tests of the project, leveraging which parts of the code were relevant to test, and calculated the total coverage, getting to know the issues created by some tests to fulfill this task. They also planned and developed the pre-commit for the team to use.
+
+Throughout the project, ChatGPT was used to assist in implementing and debugging parts of the Python code, and to ask questions about how proceed with some parts
+After using this tool, we reviewed and edited the content as needed, and we take full responsibility for it.
 
 
 
