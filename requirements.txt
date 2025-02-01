@@ -148,7 +148,7 @@ plotly==5.24.1
 pluggy==1.5.0
 pprintpp==0.4.0
 priority==2.0.0
-prompt_toolkit==3.0.48
+prompt_toolkit==3.0.50
 propcache==0.2.1
 proto-plus==1.25.0
 protobuf==4.25.5
