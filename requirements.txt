@@ -170,7 +170,7 @@ pygit2==1.17.0
 Pygments==2.19.1
 pygtrie==2.5.0
 pymongo==4.9.2
-pyOpenSSL==24.2.1
+pyOpenSSL==25.0.0
 pyparsing==3.2.1
 pyppmd==1.1.1
 pytest==8.3.4
